@@ -7,7 +7,6 @@ import { custom } from '../../custom';
 const breadcrumbsStyleScript = (props: BreadcrumbsProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 
 	// breadcrumbs styles
 	const breadcrumbsStyles = css({
@@ -28,14 +27,14 @@ const breadcrumbsStyleScript = (props: BreadcrumbsProps) => {
 				'&:last-child': {
 					whiteSpace: 'normal',
 					minWidth: 0,
-					...custom.styles.activeText(roles.brand),
+					...custom.styles.activeText(variables?.colors?.primary),
 				},
 				a: {
 					fontSize: 'inherit',
 				},
 			},
 			'.ss__breadcrumbs__separator__icon': {
-				...custom.styles.indicator(roles.structure),
+				...custom.styles.indicator(variables?.colors?.secondary),
 			},
 		},
 	});

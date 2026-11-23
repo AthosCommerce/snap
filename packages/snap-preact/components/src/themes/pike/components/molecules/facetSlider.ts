@@ -33,11 +33,10 @@ const handlesInset = slider.handles / 2 + 4;
 const facetSliderStyleScript = (props: FacetSliderProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 	const hasTicks = props?.showTicks ? true : false;
 	const hasStickyHandles = props?.stickyHandleLabel ? true : false;
 	const trackBorderColor = props?.trackColor != custom.colors.gray01 ? custom.utils.darkenColor(props.trackColor, 0.25) : custom.colors.controlBorder;
-	const activeColors = props?.handleColor ? custom.utils.activeColors(props.handleColor) : roles.brandFill;
+	const activeColors = custom.utils.activeColors(props?.handleColor || variables?.colors?.primary || custom.colors.primary);
 
 	// values font styles
 	const valuesStyles = css({
@@ -84,7 +83,7 @@ const facetSliderStyleScript = (props: FacetSliderProps) => {
 			},
 			'.ss__facet-slider__rail': {
 				// the selected range is a position indicator (the component colors it primary)
-				backgroundColor: props?.railColor || roles.brand,
+				backgroundColor: props?.railColor || variables?.colors?.primary,
 				...custom.styles.borderRadius(slider.bar),
 			},
 			'.ss__facet-slider__handles': {

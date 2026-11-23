@@ -14,10 +14,9 @@ const styleSelector = '&[style], &:has(.ss__image)';
 const gridStyleScript = (props: Partial<GridProps>) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 	const columns = props?.columns ? props.columns : 4;
 
-	const activeColors = roles.brandFill;
+	const activeColors = custom.utils.activeColors(variables?.colors?.primary || custom.colors.primary);
 	const activeColor = activeColors[0];
 	const fontColor = activeColors[1];
 
@@ -25,7 +24,7 @@ const gridStyleScript = (props: Partial<GridProps>) => {
 	const gridStyles = css({
 		'.ss__grid__title': {
 			margin: `0 0 ${custom.spacing.x2}px 0`,
-			...custom.styles.headerText(roles.structure, '14px'),
+			...custom.styles.headerText(variables?.colors?.secondary, '14px'),
 		},
 		'.ss__grid__options .ss__grid__option .ss__grid__option__inner .ss__grid__option__label, .ss__grid__show-more-wrapper': {
 			fontSize: '12px',
@@ -194,7 +193,7 @@ const gridStyleScript = (props: Partial<GridProps>) => {
 			},
 			'.ss__grid__show-more, .ss__grid__show-less': {
 				// a text action, like the facets' show more
-				...custom.styles.activeText(roles.structure),
+				...custom.styles.activeText(variables?.colors?.secondary),
 			},
 		},
 	});

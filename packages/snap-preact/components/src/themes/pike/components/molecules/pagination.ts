@@ -7,7 +7,6 @@ import { custom } from '../../custom';
 const paginationStyleScript = (props: PaginationProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 	const mobileBp = variables?.breakpoints?.mobile as number;
 
 	const paginationStyles = css({
@@ -25,13 +24,13 @@ const paginationStyleScript = (props: PaginationProps) => {
 				minWidth: '1px',
 				minHeight: '1px',
 				'&.ss__pagination__page--active': {
-					...custom.styles.activeText(roles.brand),
+					...custom.styles.activeText(variables?.colors?.primary),
 				},
 			},
 			'.ss__pagination__page--previous, .ss__pagination__page--next': {
 				lineHeight: `10px`,
 				'.ss__pagination__icon': {
-					...custom.styles.indicator(roles.structure),
+					...custom.styles.indicator(variables?.colors?.secondary),
 				},
 			},
 		},

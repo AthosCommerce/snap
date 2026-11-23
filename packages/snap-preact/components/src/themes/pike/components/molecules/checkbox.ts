@@ -7,7 +7,6 @@ import { custom } from '../../custom';
 const checkboxStyleScript = (props: CheckboxProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 
 	// shared styles
 	const sharedStyles = css({
@@ -27,7 +26,7 @@ const checkboxStyleScript = (props: CheckboxProps) => {
 			},
 			// the check square is an indicator (the component colors it primary)
 			'.ss__checkbox__icon': {
-				...custom.styles.indicator(props.iconColor || roles.brand),
+				...custom.styles.indicator(props.iconColor || variables?.colors?.primary),
 			},
 			'&.ss__checkbox--disabled': {
 				...custom.styles.disabled(),

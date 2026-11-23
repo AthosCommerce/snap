@@ -7,7 +7,6 @@ import { custom } from '../../custom';
 const variantSelectionStyleScript = (props: VariantSelectionProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 
 	// shared styles
 	const sharedStyles = css({
@@ -48,7 +47,7 @@ const variantSelectionStyleScript = (props: VariantSelectionProps) => {
 						},
 					},
 					'.ss__variant-selection__icon': {
-						...custom.styles.indicator(roles.structure),
+						...custom.styles.indicator(variables?.colors?.secondary),
 						transition: 'transform ease 0.5s',
 					},
 				},
@@ -73,7 +72,7 @@ const variantSelectionStyleScript = (props: VariantSelectionProps) => {
 							},
 						},
 						'.ss__variant-selection__option--selected': {
-							...custom.styles.activeText(roles.brand),
+							...custom.styles.activeText(variables?.colors?.primary),
 						},
 						'.ss__variant-selection__option--unavailable, .ss__variant-selection__option--disabled': {
 							color: 'inherit',
@@ -110,7 +109,7 @@ const variantSelectionStyleScript = (props: VariantSelectionProps) => {
 						},
 					},
 					'.ss__list__option--selected': {
-						...custom.styles.activeText(roles.brand),
+						...custom.styles.activeText(variables?.colors?.primary),
 					},
 					'.ss__list__option--unavailable, .ss__list__option--disabled': {
 						...custom.styles.disabled(),

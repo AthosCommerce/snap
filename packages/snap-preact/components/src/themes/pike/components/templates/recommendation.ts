@@ -21,7 +21,6 @@ const carouselOptions = {
 const recommendationStyleScript = (props: RecommendationProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 	const tabletBp = variables?.breakpoints?.tablet as number;
 	const mobileBp = variables?.breakpoints?.mobile as number;
 
@@ -44,7 +43,7 @@ const recommendationStyleScript = (props: RecommendationProps) => {
 		},
 		'.ss__recommendation__title': {
 			paddingRight: `${arrowSizes.default * 2 + custom.spacing.x1 + custom.spacing.x2}px`,
-			...custom.styles.headerText(roles.structure, '18px'),
+			...custom.styles.headerText(variables?.colors?.secondary, '18px'),
 			...custom.styles.textOverflow(),
 		},
 		'.ss__recommendation__description': {

@@ -10,7 +10,6 @@ const darkGray = custom.colors.controlBorder;
 const ratingStyleScript = (props: RatingProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 
 	// rating styles
 	const ratingStyles = css({
@@ -26,7 +25,7 @@ const ratingStyleScript = (props: RatingProps) => {
 				gridTemplateColumns: 'repeat(5, 1fr)',
 				// filled stars are a highlight; empty stars keep the control boundary gray
 				'.ss__rating__stars__star--full .ss__icon': {
-					...custom.styles.indicator(roles.highlight),
+					...custom.styles.indicator(variables?.colors?.accent),
 				},
 			},
 		},

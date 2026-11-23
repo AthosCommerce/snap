@@ -1,7 +1,6 @@
 import { IconType } from '../../components/Atoms/Icon';
 import { colord, extend } from 'colord';
 import a11yPlugin from 'colord/plugins/a11y';
-import type { ThemeVariables } from '../../providers';
 
 extend([a11yPlugin]);
 
@@ -30,10 +29,10 @@ const spacingCalc = (value: number) => {
 	  against white and the gray01 fill) - `controlBorder` for borders, 45% black for swatch outlines.
 	  `gray02` is only for decoration that does not identify a control.
 	- Color roles: Pike is monochrome by default (all three theme colors are `currentColor`). Each color has
-	  one job, the same in every theme, resolved by `utils.colorRoles`. The library components color their
+	  one job, the same in every theme. The library components color their
 	  own controls with `primary` and those defaults render under the theme scripts, so every Pike script
 	  sets its colors explicitly - a theme color that "just works" is usually a leak from a component default.
-	    - primary - BRAND: filled main actions (`brandFill` - the sidebar's Apply, the quickview's More info,
+	    - primary - BRAND: filled main actions (`utils.activeColors` - the sidebar's Apply, the quickview's More info,
 	      the bundle's add to cart and its seed badge) and every selected, active or current state -
 	      selected option text (`styles.activeText`), the current page, crumb, tab and term, selected
 	      grid/swatch/layout options, check squares and radio bullets, slider handles and rail, the active
@@ -42,7 +41,7 @@ const spacingCalc = (value: number) => {
 	      direction chevrons and other icons on neutral surfaces (selects, facet collapse, dropdowns,
 	      breadcrumb separators, hierarchy return, pagination arrows, swatch paging, autocomplete see-more,
 	      the bundle plus), text actions and links (show more/less, no results, header subtitle), the other
-	      fills (`structureFill` - every other button, carousel/slideshow arrows, the search button, the
+	      fills (`utils.activeColors` - every other button, carousel/slideshow arrows, the search button, the
 	      quickview hover fill) and the focus ring. Chevrons inside filled controls stay in the fill's contrast color.
 	    - accent - HIGHLIGHT: what should catch the eye on almost every search - the query in the results
 	      header and in a spelling correction, the untyped part of each autocomplete suggestion, sale
@@ -370,17 +369,6 @@ export const custom: CustomThemeType = {
 			const parsed = colord(color || '');
 			return parsed.isValid() && parsed.contrast(custom.colors.white) >= 3 ? parsed.toHex().toLowerCase() : custom.colors.black;
 		},
-		colorRoles: (variables?: ThemeVariables) => {
-			// the theme colors by purpose (see color roles) - fills are [fill, text on it]
-			const colors = variables?.colors;
-			return {
-				brand: colors?.primary,
-				brandFill: custom.utils.activeColors(colors?.primary || custom.colors.primary),
-				structure: colors?.secondary,
-				structureFill: custom.utils.activeColors(colors?.secondary || custom.colors.secondary),
-				highlight: colors?.accent,
-			};
-		},
 		getBp: (bp: number, rule?: string) => {
 			// get breakpoint selector
 			rule = rule && (rule == 'min' || rule == 'max') ? rule : 'min';
@@ -396,14 +384,6 @@ type ObjectNestedType = {
 
 type ObjectNumberOrStringType = {
 	[key: string]: number | string | undefined;
-};
-
-type ColorRoles = {
-	brand?: string;
-	brandFill: string[];
-	structure?: string;
-	structureFill: string[];
-	highlight?: string;
 };
 
 type CustomThemeType = {
@@ -444,7 +424,6 @@ type CustomThemeType = {
 	};
 	utils: {
 		activeColors: (color: string) => string[];
-		colorRoles: (variables?: ThemeVariables) => ColorRoles;
 		darkenColor: (color?: string, amount?: number) => string;
 		focusColor: (color?: string) => string;
 		getBp: (bp: number, rule?: string) => string;

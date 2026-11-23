@@ -7,12 +7,11 @@ import { custom } from '../../custom';
 const loadingBarStyleScript = (props: LoadingBarProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 
 	// loading bar styles - a progress indicator on a neutral track (the component colors the bar primary)
 	const loadingBarStyles = css({
 		'.ss__loading-bar__bar': {
-			backgroundColor: props?.color || roles.brand,
+			backgroundColor: props?.color || variables?.colors?.primary,
 		},
 	});
 

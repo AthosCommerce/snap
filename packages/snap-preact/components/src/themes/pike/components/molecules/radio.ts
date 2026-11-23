@@ -10,7 +10,6 @@ const darkGray = custom.colors.controlBorder;
 const radioStyleScript = (props: RadioProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 
 	// default radio styles
 	const defaultRadiosStyles = css([
@@ -31,7 +30,7 @@ const radioStyleScript = (props: RadioProps) => {
 			},
 			// the bullet is an indicator (the component colors it primary)
 			'.ss__radio__icon': {
-				...custom.styles.indicator(roles.brand),
+				...custom.styles.indicator(variables?.colors?.primary),
 			},
 		},
 	]);

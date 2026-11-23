@@ -10,7 +10,6 @@ const checkboxSpacing = custom.sizes.icon16 + custom.spacing.x2;
 const listStyleScript = (props: ListProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 
 	// shared styles
 	const sharedStyles = css({
@@ -25,7 +24,7 @@ const listStyleScript = (props: ListProps) => {
 		},
 		'.ss__list__title': {
 			margin: `0 0 ${custom.spacing.x2}px 0`,
-			...custom.styles.headerText(roles.structure, '14px'),
+			...custom.styles.headerText(variables?.colors?.secondary, '14px'),
 		},
 		'.ss__list__options': {
 			'.ss__list__option': {
@@ -50,7 +49,7 @@ const listStyleScript = (props: ListProps) => {
 				...custom.styles.disabled(),
 			},
 			'.ss__list__option--selected': {
-				...custom.styles.activeText(roles.brand),
+				...custom.styles.activeText(variables?.colors?.primary),
 			},
 			// icon-only options have no checkbox, label or bold text to show selection - mute the rest
 			...(props?.hideOptionCheckboxes && props?.hideOptionLabels

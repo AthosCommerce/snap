@@ -16,9 +16,8 @@ const checkboxHeight = 16;
 const recommendationBundleVerticalStyleScript = (props: RecommendationBundleVerticalProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 
-	const activeColors = roles.brandFill;
+	const activeColors = custom.utils.activeColors(variables?.colors?.primary || custom.colors.primary);
 	const activeColor = activeColors[0];
 	const fontColor = activeColors[1];
 
@@ -41,7 +40,7 @@ const recommendationBundleVerticalStyleScript = (props: RecommendationBundleVert
 			},
 		},
 		'.ss__recommendation-bundle-vertical__title': {
-			...custom.styles.headerText(roles.structure, '16px'),
+			...custom.styles.headerText(variables?.colors?.secondary, '16px'),
 		},
 		'.ss__recommendation-bundle-vertical__wrapper': {
 			gap: `${custom.spacing.x2}px`,

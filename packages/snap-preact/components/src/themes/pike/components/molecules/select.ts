@@ -10,7 +10,6 @@ const dropdownIcon = `.ss__icon--${custom.icons.arrowDown}`;
 const selectStyleScript = (props: SelectProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 
 	// shared styles
 	const sharedStyles = css({
@@ -48,7 +47,7 @@ const selectStyleScript = (props: SelectProps) => {
 								fontWeight: 'normal',
 							},
 							[dropdownIcon]: {
-								...custom.styles.indicator(roles.structure),
+								...custom.styles.indicator(variables?.colors?.secondary),
 								transition: 'transform ease 0.5s',
 								marginLeft: 'auto',
 							},
@@ -81,7 +80,7 @@ const selectStyleScript = (props: SelectProps) => {
 							},
 						},
 						'.ss__select__select__option--selected': {
-							...custom.styles.activeText(roles.brand),
+							...custom.styles.activeText(variables?.colors?.primary),
 						},
 					},
 				},

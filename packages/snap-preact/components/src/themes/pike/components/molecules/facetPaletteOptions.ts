@@ -16,7 +16,6 @@ const paletteColors = {
 const facetPaletteStyleScript = (props: FacetPaletteOptionsProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 	const hasCheckbox = !props?.hideCheckbox ? true : false;
 	const isList = props?.layout == 'list' ? true : false;
 	const innerBorder = isList ? 3 : 5;
@@ -39,7 +38,7 @@ const facetPaletteStyleScript = (props: FacetPaletteOptionsProps) => {
 					},
 				},
 				'.ss__facet-palette-options__option__value': {
-					...custom.styles.activeText(roles.brand),
+					...custom.styles.activeText(variables?.colors?.primary),
 				},
 			},
 			'.ss__facet-palette-options__option__wrapper': {

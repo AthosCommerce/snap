@@ -7,7 +7,6 @@ import { custom } from '../../custom';
 const loadMoreStyleScript = (props: LoadMoreProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 	const borderColor =
 		props?.backgroundColor != custom.colors.gray01 ? custom.utils.darkenColor(props.backgroundColor, 0.25) : custom.colors.controlBorder;
 
@@ -30,7 +29,7 @@ const loadMoreStyleScript = (props: LoadMoreProps) => {
 					'.ss__load-more__progress__indicator__bar': {
 						margin: '-1px',
 						// a progress indicator (the component colors it primary)
-						backgroundColor: props?.color || roles.brand,
+						backgroundColor: props?.color || variables?.colors?.primary,
 					},
 				},
 				'.ss__load-more__progress__text': {

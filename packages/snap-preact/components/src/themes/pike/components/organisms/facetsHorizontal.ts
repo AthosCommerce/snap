@@ -10,7 +10,6 @@ const dropdownButtonHeight = custom.sizes.height;
 const facetsHorizontalStyleScript = (props: FacetsHorizontalProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 	const mobileBp = variables?.breakpoints?.mobile as number;
 	const tabletBp = variables?.breakpoints?.tablet as number;
 
@@ -95,7 +94,7 @@ const facetsHorizontalStyleScript = (props: FacetsHorizontalProps) => {
 							},
 						},
 						'.ss__dropdown__button__heading__icon': {
-							...custom.styles.indicator(roles.structure),
+							...custom.styles.indicator(variables?.colors?.secondary),
 							transition: 'transform ease 0.5s',
 						},
 					},

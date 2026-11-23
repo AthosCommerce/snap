@@ -11,7 +11,6 @@ const checkboxSpacing = custom.sizes.icon16 + custom.spacing.x2;
 const facetListOptionsStyleScript = (props: FacetListOptionsProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 
 	// shared styles
 	const sharedStyles = css({
@@ -38,7 +37,7 @@ const facetListOptionsStyleScript = (props: FacetListOptionsProps) => {
 			},
 		},
 		'.ss__facet-list-options__option.ss__facet-list-options__option--filtered': {
-			...custom.styles.activeText(roles.brand),
+			...custom.styles.activeText(variables?.colors?.primary),
 		},
 	});
 

@@ -11,8 +11,7 @@ const quickviewSize = 32;
 const resultStyleScript = (props: ResultProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
-	const quickviewColors = roles.structureFill;
+	const quickviewColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary);
 
 	// result styles
 	const resultStyles = css({
@@ -22,7 +21,7 @@ const resultStyleScript = (props: ResultProps) => {
 				'.ss__result__details__pricing': {
 					'.ss__result__price:not(.ss__price--strike)': {
 						'&, span': {
-							color: roles.highlight,
+							color: variables?.colors?.accent,
 						},
 					},
 				},

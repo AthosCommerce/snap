@@ -7,7 +7,6 @@ import { custom } from '../../custom';
 const filterSummaryStyleScript = (props: FilterSummaryProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 	const isSidebar = props?.treePath?.includes('sidebar') ? true : false;
 
 	// filter summary styles
@@ -28,14 +27,14 @@ const filterSummaryStyleScript = (props: FilterSummaryProps) => {
 				margin: `0 0 ${custom.spacing.x4}px 0`,
 				padding: `0 0 ${custom.spacing.x2}px 0`,
 				// same anatomy as a facet header - secondary title on a secondary rule
-				borderBottom: `2px solid ${roles.structure}`,
-				...custom.styles.headerText(roles.structure, '16px'),
+				borderBottom: `2px solid ${variables?.colors?.secondary}`,
+				...custom.styles.headerText(variables?.colors?.secondary, '16px'),
 		  }
 		: {
 				padding: 0,
 				flexShrink: 0,
 				whiteSpace: 'nowrap',
-				...custom.styles.headerText(roles.structure, '14px'),
+				...custom.styles.headerText(variables?.colors?.secondary, '14px'),
 		  };
 
 	// shared styles

@@ -17,9 +17,8 @@ const styleSelector = '&[style], &:has(.ss__image)';
 const swatchesStyleScript = (props: SwatchesProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
 
-	const activeColors = roles.brandFill;
+	const activeColors = custom.utils.activeColors(variables?.colors?.primary || custom.colors.primary);
 	const activeColor = activeColors[0];
 	const fontColor = activeColors[1];
 
@@ -193,7 +192,7 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 					position: 'static',
 					// quiet chevrons - filled arrow blocks outweighed the swatches they page through
 					'.ss__button': {
-						color: roles.structure || 'inherit',
+						color: variables?.colors?.secondary || 'inherit',
 						[`&, &:hover, &:not(.ss__button--disabled):hover, &.ss__button--disabled`]: {
 							border: 0,
 							backgroundColor: 'transparent',

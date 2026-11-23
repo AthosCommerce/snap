@@ -26,7 +26,7 @@ export const quickviewCloseTitleOffset = contentPadding + (titleLine - closeIcon
 export const quickviewSharedStyleScript = (props: QuickviewSharedProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
+	const brandColors = custom.utils.activeColors(variables?.colors?.primary || custom.colors.primary);
 
 	// nested under `.ss__quickview` to out-specify the layout's own (later inserted) rules
 	return css({
@@ -48,7 +48,7 @@ export const quickviewSharedStyleScript = (props: QuickviewSharedProps) => {
 			'.ss__quickview__title': {
 				margin: 0,
 				paddingRight: 0,
-				...custom.styles.headerText(roles.structure, `${titleSize}px`),
+				...custom.styles.headerText(variables?.colors?.secondary, `${titleSize}px`),
 				lineHeight: titleLine / titleSize,
 			},
 			'.ss__quickview__variants': {
@@ -59,7 +59,7 @@ export const quickviewSharedStyleScript = (props: QuickviewSharedProps) => {
 			},
 			'.ss__quickview__variant-title': {
 				margin: `0 0 ${custom.spacing.x2}px 0`,
-				...custom.styles.headerText(roles.structure, '14px'),
+				...custom.styles.headerText(variables?.colors?.secondary, '14px'),
 				textTransform: 'capitalize',
 			},
 			'.ss__quickview__description': {
@@ -74,9 +74,9 @@ export const quickviewSharedStyleScript = (props: QuickviewSharedProps) => {
 			// More info is the quickview's main action - filled with the brand color, like Apply and the bundle CTA
 			'.ss__button.ss__quickview__go-to-product': {
 				'&, &:hover, &:not(.ss__button--disabled):hover': {
-					backgroundColor: roles.brandFill[0],
-					borderColor: roles.brandFill[0],
-					color: roles.brandFill[1],
+					backgroundColor: brandColors[0],
+					borderColor: brandColors[0],
+					color: brandColors[1],
 				},
 			},
 			// close is an icon button on the panel - no fill

@@ -18,13 +18,13 @@ const isPanel = (props: SidebarProps) => /\bslideout\b/.test(props?.treePath || 
 const sidebarStyleScript = (props: SidebarProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const roles = custom.utils.colorRoles(variables);
+	const brandColors = custom.utils.activeColors(variables?.colors?.primary || custom.colors.primary);
 
 	// sidebar styles
 	const sidebarStyles = css({
 		'.ss__sidebar__title': {
 			margin: `0 0 ${custom.spacing.x6}px 0`,
-			...custom.styles.headerText(roles.structure, '20px'),
+			...custom.styles.headerText(variables?.colors?.secondary, '20px'),
 			lineHeight: 1.2,
 		},
 		// an empty header (hidden title, no close button) takes no space
@@ -80,9 +80,9 @@ const sidebarStyleScript = (props: SidebarProps) => {
 			// Apply is the panel's main action - filled with the brand color, like More info and the bundle CTA
 			'.ss__sidebar__footer__apply-button': {
 				'&, &:hover, &:not(.ss__button--disabled):hover': {
-					backgroundColor: roles.brandFill[0],
-					borderColor: roles.brandFill[0],
-					color: roles.brandFill[1],
+					backgroundColor: brandColors[0],
+					borderColor: brandColors[0],
+					color: brandColors[1],
 				},
 			},
 			// secondary action - outlined rather than filled
