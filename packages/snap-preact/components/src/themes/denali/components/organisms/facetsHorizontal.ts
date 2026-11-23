@@ -6,6 +6,7 @@ import { custom } from '../../custom';
 // CSS in JS style script for the Facets component
 const facetsHorizontalStyleScript = ({ theme }: FacetsHorizontalProps) => {
 	const variables = theme?.variables;
+	const roles = custom.colorRoles(variables);
 
 	return css({
 		// no extra space - the bar centers on the toolbar row beside sort by
@@ -47,7 +48,7 @@ const facetsHorizontalStyleScript = ({ theme }: FacetsHorizontalProps) => {
 					alignItems: 'center',
 					gap: '15px',
 					padding: 0,
-					color: variables?.colors?.secondary,
+					color: roles.structure,
 					fontWeight: 'normal',
 
 					'& .ss__icon': {
@@ -58,7 +59,7 @@ const facetsHorizontalStyleScript = ({ theme }: FacetsHorizontalProps) => {
 						borderRadius: '50%',
 						backgroundColor: custom.colors.white,
 						transition: 'transform ease .5s',
-						...custom.styles.indicator(variables?.colors?.accent),
+						...custom.styles.indicator(roles.structure),
 					},
 				},
 				// a text action, not a pill button

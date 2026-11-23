@@ -6,8 +6,9 @@ import { custom } from '../../custom';
 // CSS in JS style script for the LayoutSelector component
 const layoutSelectorStyleScript = ({ theme }: LayoutSelectorProps) => {
 	const variables = theme?.variables;
-	const secondary = variables?.colors?.secondary || custom.colors.black;
-	const activeColors = custom.utils.activeColors(secondary);
+	const roles = custom.colorRoles(variables);
+	const secondary = roles.structure || custom.colors.black;
+	const activeColors = roles.brandFill;
 
 	return css({
 		'.ss__button__content': {

@@ -6,16 +6,21 @@ import { custom } from '../../custom';
 // CSS in JS style script for the Checkbox component
 const checkboxStyleScript = ({ color, iconColor, theme }: CheckboxProps) => {
 	const variables = theme?.variables;
+	const roles = custom.colorRoles(variables);
 
 	return css({
 		border: `2px solid ${color || custom.colors.controlBorder}`,
 		borderRadius: '5px',
 		backgroundColor: custom.colors.white,
 		'.ss__checkbox__icon': {
-			...custom.styles.indicator(iconColor || variables?.colors?.accent),
+			...custom.styles.indicator(iconColor || roles.brand),
+		},
+		// a checked box takes the brand color on its outline as well as its check
+		'&.ss__checkbox--active': {
+			borderColor: color || roles.brand,
 		},
 		'&.ss__checkbox--disabled': {
-			opacity: 0.3,
+			opacity: 0.4,
 		},
 	});
 };

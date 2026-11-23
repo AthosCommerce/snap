@@ -6,6 +6,7 @@ import { custom } from '../../custom';
 // CSS in JS style script for the Terms component
 const termsStyleScript = ({ theme, vertical }: TermsProps) => {
 	const variables = theme?.variables;
+	const roles = custom.colorRoles(variables);
 
 	return css({
 		// terms sit bare on the panel, so they read apart from the gray facet cards - a list of rows when vertical
@@ -41,39 +42,47 @@ const termsStyleScript = ({ theme, vertical }: TermsProps) => {
 			'&, a': {
 				color: 'inherit',
 			},
-			// the link fills the term, so the whole of it is the hit area
+			// the link fills the term, so the whole of it is the hit area. it stays a block, not a flex row, so a
+			// highlighted part of the term flows inline with the rest
 			a: {
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'space-between',
-				gap: '8px',
-				padding: '4px 12px',
+				display: 'block',
+				position: 'relative',
+				padding: vertical ? '4px 28px 4px 12px' : '4px 12px',
 			},
 			'&:hover': {
 				backgroundColor: vertical ? custom.colors.gray01 : custom.colors.gray02,
 			},
 			'&.ss__terms__option--active': {
 				backgroundColor: 'transparent',
-				borderColor: variables?.colors?.secondary,
+				borderColor: roles.brand,
 			},
 			'&.ss__terms__option--active a': {
-				...custom.styles.activeText(variables?.colors?.primary),
+				...custom.styles.activeText(roles.brand),
 			},
 			// in the list a chevron points at the results the active term previews, in the column beside it
 			...(vertical
 				? {
 						'&.ss__terms__option--active a:after': {
 							content: '""',
-							flex: '0 0 auto',
+							position: 'absolute',
+							top: '50%',
+							right: '14px',
 							width: '5px',
 							height: '5px',
-							marginRight: '2px',
 							borderTop: '2px solid currentColor',
 							borderRight: '2px solid currentColor',
-							transform: 'rotate(45deg)',
+							transform: 'translateY(-50%) rotate(45deg)',
 						},
 				  }
 				: {}),
+		},
+		// the part of a suggestion the shopper has not typed is a highlight - popular and recent searches have
+		// nothing typed to complete, so the whole term would be marked, and they keep the plain text color
+		'& .ss__terms__options .ss__terms__option em': {
+			fontStyle: 'normal',
+		},
+		'&.ss__terms-list__terms--suggestions .ss__terms__options .ss__terms__option em': {
+			color: roles.highlight,
 		},
 		// a vertical list is one term per row - a horizontal one wraps from the left
 		'& .ss__terms__options': {
@@ -92,6 +101,8 @@ export const terms: ThemeComponent<'terms', TermsProps, TermsTemplatesLegalProps
 	default: {
 		terms: {
 			themeStyleScript: termsStyleScript,
+			// marks the part of each term the shopper has not typed
+			emIfy: true,
 		},
 	},
 };

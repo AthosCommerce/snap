@@ -1,6 +1,7 @@
 import { css } from '@emotion/react';
 import { autocompleteFixedThemeComponentProps } from '../../../themeComponents/autocompleteFixed';
 import { ThemeComponent } from '../../../../providers';
+import { custom } from '../../custom';
 import { autocompleteSeeMoreStyles, autocompleteSharedStyles } from './autocompleteShared';
 import { AutocompleteFixedProps, AutocompleteFixedTemplatesLegalProps } from '../../../../components/Templates/AutocompleteFixed';
 
@@ -8,7 +9,7 @@ import { AutocompleteFixedProps, AutocompleteFixedTemplatesLegalProps } from '..
 const autocompleteFixedStyleScript = ({ width, theme }: AutocompleteFixedProps) => {
 	return css({
 		...autocompleteSharedStyles,
-		...autocompleteSeeMoreStyles(theme?.variables?.colors?.secondary),
+		...autocompleteSeeMoreStyles(custom.colorRoles(theme?.variables).brandFill),
 		// the panel's corners are concentric with the 20px cards inset 10px inside it
 		'.ss__autocomplete-fixed__inner .ss__autocomplete': {
 			borderRadius: '30px',

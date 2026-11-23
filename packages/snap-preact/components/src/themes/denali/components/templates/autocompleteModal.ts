@@ -1,12 +1,14 @@
 import { css } from '@emotion/react';
 import { autocompleteModalThemeComponentProps } from '../../../themeComponents/autocompleteModal';
 import { ThemeComponent } from '../../../../providers';
+import { custom } from '../../custom';
 import { autocompleteCloseSearchButtonStyles, autocompleteSeeMoreStyles, autocompleteSharedStyles } from './autocompleteShared';
 import { AutocompleteModalProps, AutocompleteModalTemplatesLegalProps } from '../../../../components/Templates/AutocompleteModal';
 
 // CSS in JS style script for the Search component
 const autocompleteModalStyleScript = ({ theme }: AutocompleteModalProps) => {
 	const variables = theme?.variables;
+	const roles = custom.colorRoles(variables);
 
 	return css({
 		...autocompleteSharedStyles,
@@ -48,7 +50,7 @@ const autocompleteModalStyleScript = ({ theme }: AutocompleteModalProps) => {
 			...autocompleteCloseSearchButtonStyles,
 			right: '-44px',
 		},
-		...autocompleteSeeMoreStyles(variables?.colors?.secondary),
+		...autocompleteSeeMoreStyles(roles.brandFill),
 	});
 };
 

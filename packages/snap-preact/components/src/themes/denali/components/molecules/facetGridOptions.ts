@@ -6,7 +6,8 @@ import { custom } from '../../custom';
 // CSS in JS style script for the FacetGridOptions component
 const facetGridOptionsStyleScript = ({ theme }: FacetGridOptionsProps) => {
 	const variables = theme?.variables;
-	const activeColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.black);
+	const roles = custom.colorRoles(variables);
+	const activeColors = roles.brandFill;
 
 	return css({
 		'& .ss__facet-grid-options__option': {

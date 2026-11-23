@@ -6,6 +6,7 @@ import { custom } from '../../custom';
 // CSS in JS style script for the VariantSelection component
 const variantSelectionStyleScript = ({ theme }: VariantSelectionProps) => {
 	const variables = theme?.variables;
+	const roles = custom.colorRoles(variables);
 
 	return css({
 		// the list's title is the field name ("color") - capitalized like the dropdown's label
@@ -56,7 +57,7 @@ const variantSelectionStyleScript = ({ theme }: VariantSelectionProps) => {
 				background: custom.colors.white,
 				padding: '5px',
 				borderRadius: '50%',
-				...custom.styles.indicator(variables?.colors?.accent),
+				...custom.styles.indicator(roles.structure),
 			},
 		},
 	});

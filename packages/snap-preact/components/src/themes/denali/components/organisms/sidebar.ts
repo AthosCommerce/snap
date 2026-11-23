@@ -6,9 +6,10 @@ import { custom } from '../../custom';
 // CSS in JS style script for the Sidebar component
 const sidebarStyleScript = ({ theme, treePath }: SidebarProps) => {
 	const variables = theme?.variables;
+	const roles = custom.colorRoles(variables);
 	// a sidebar rendered in a slideout (`... slideout sidebar` in the tree path) fills the panel and pins its footer
 	const inSlideout = /\bslideout\b/.test(treePath || '');
-	const applyColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.black);
+	const applyColors = roles.brandFill;
 
 	return css({
 		boxSizing: 'border-box',
@@ -25,7 +26,7 @@ const sidebarStyleScript = ({ theme, treePath }: SidebarProps) => {
 			: {}),
 
 		'& .ss__sidebar__title': {
-			color: variables?.colors?.secondary,
+			color: roles.structure,
 		},
 
 		'& .ss__sidebar__header': {

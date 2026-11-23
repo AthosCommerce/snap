@@ -22,9 +22,7 @@ export const autocompleteCloseSearchButtonStyles: CSSObject = {
 
 // see more as the closing action of the fixed and modal templates, like the quickview's More info - a filled bar
 // across the results column, without the separator that pushes it to one side
-export const autocompleteSeeMoreStyles = (color?: string): CSSObject => {
-	const seeMoreColors = custom.utils.activeColors(color || custom.colors.black);
-
+export const autocompleteSeeMoreStyles = (seeMoreColors: [string, string]): CSSObject => {
 	return {
 		'.ss__autocomplete__row:has(> .ss__autocomplete__button--see-more) > .ss__autocomplete__separator': {
 			display: 'none',

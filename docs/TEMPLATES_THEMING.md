@@ -54,7 +54,15 @@ The library themes are:
 | `pike` | Square corners, bordered controls and neutral gray surfaces |
 | `denali` | Rounded: pill buttons and chips, circular controls, and rounded facet cards and images |
 
-`pike` and `denali` use the theme colors the same way (`secondary` for titles and control outlines or fills, `primary` for emphasized text such as selected options and sale prices, `accent` for indicators such as chevrons and check marks), so switching `extends` between them keeps the meaning of a site's colors. Both default every color to `currentColor`, so they follow the page's text color until `theme.variables.colors` are set.
+Both themes default every color to `currentColor`, so they follow the page's text color until `theme.variables.colors` are set. Each gives the colors its own roles:
+
+| Color | `pike` | `denali` |
+|-------|--------|----------|
+| `primary` | Emphasized text: selected options and sale prices | The brand color: filled main actions (See more, Apply, More info) and every selected or current state - selected options and their checks, the current page, tab and term, selected chips, tiles and swatches, and the price slider's range |
+| `secondary` | Titles, and control outlines and fills | Titles, resting control outlines, icons and chevrons, and text actions such as View More and Clear All |
+| `accent` | Indicators such as chevrons and check marks | Highlights: the query in the results header and in a spelling correction, the untyped part of each autocomplete suggestion, sale prices and rating stars |
+
+With `denali`, setting `primary` alone brands every action and selection. A color too light to read as text or an outline on the theme's white and light gray surfaces is darkened, keeping its hue, wherever it is used that way; filled controls keep the color and switch their text to black or white.
 
 
 ### Theme `variables`

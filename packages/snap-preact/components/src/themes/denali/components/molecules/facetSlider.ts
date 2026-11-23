@@ -15,7 +15,8 @@ const facetSliderStyleScript = ({
 	theme,
 }: FacetSliderProps) => {
 	const variables = theme?.variables;
-	const activeColors = custom.utils.activeColors(handleColor || variables?.colors?.secondary || custom.colors.black);
+	const roles = custom.colorRoles(variables);
+	const handle = handleColor || roles.brand;
 
 	return css({
 		marginBottom: showTicks && stickyHandleLabel ? '22px' : showTicks || stickyHandleLabel ? '10px' : '5px',
@@ -25,7 +26,7 @@ const facetSliderStyleScript = ({
 		},
 
 		'& .ss__facet-slider__rail': {
-			background: railColor || variables?.colors?.accent,
+			background: railColor || roles.brand,
 			borderRadius: '3px',
 		},
 
@@ -38,11 +39,11 @@ const facetSliderStyleScript = ({
 		'& .ss__facet-slider__handles': {
 			'& button': {
 				'& .ss__facet-slider__handle': {
-					background: activeColors[0],
+					background: handle,
 					color: valueTextColor || 'inherit',
 
 					'&.ss__facet-slider__handle--active': {
-						background: handleDraggingColor || activeColors[0],
+						background: handleDraggingColor || handle,
 					},
 				},
 				'& .ss__facet-slider__handle:after': {

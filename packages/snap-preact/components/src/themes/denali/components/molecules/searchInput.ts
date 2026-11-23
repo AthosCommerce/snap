@@ -5,10 +5,11 @@ import { custom } from '../../custom';
 // CSS in JS style script for the SearchInput component
 const searchInputStyleScript = ({ theme }: SearchInputProps) => {
 	const variables = theme?.variables;
+	const roles = custom.colorRoles(variables);
 
 	return css({
 		// the same 2px outline as the theme's buttons
-		border: `2px solid ${variables?.colors?.secondary}`,
+		border: `2px solid ${roles.structure}`,
 		borderRadius: '2em',
 		padding: '0 10px 0 15px',
 		'.ss__search-input__input': {
@@ -48,7 +49,7 @@ const searchInputStyleScript = ({ theme }: SearchInputProps) => {
 			marginRight: '8px',
 		},
 		'&:focus-within': {
-			boxShadow: `inset 0 0 0 1px ${variables?.colors?.secondary}`,
+			boxShadow: `inset 0 0 0 1px ${roles.structure}`,
 		},
 	});
 };

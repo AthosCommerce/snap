@@ -6,13 +6,14 @@ import { custom } from '../../custom';
 // CSS in JS style script for the Rating component
 const ratingStyleScript = ({ theme }: RatingProps) => {
 	const variables = theme?.variables;
+	const roles = custom.colorRoles(variables);
 
 	return css({
 		'.ss__rating__stars': {
 			gap: '2px',
 		},
 		'.ss__rating__stars--full .ss__icon': {
-			...custom.styles.indicator(variables?.colors?.accent),
+			...custom.styles.indicator(roles.highlight),
 		},
 		'.ss__rating__stars--empty .ss__icon': {
 			...custom.styles.indicator(custom.colors.controlBorder),

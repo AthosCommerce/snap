@@ -6,6 +6,7 @@ import { custom } from '../../custom';
 // CSS in JS style script for the Pagination component
 const paginationStyleScript = ({ theme }: PaginationProps) => {
 	const variables = theme?.variables;
+	const roles = custom.colorRoles(variables);
 
 	return css({
 		// every chip (numbers and arrows) is the same height, its content centered - a round chip with the theme's
@@ -31,13 +32,13 @@ const paginationStyleScript = ({ theme }: PaginationProps) => {
 				background: custom.colors.gray01,
 			},
 			'&.ss__pagination__page--active': {
-				...custom.styles.activeText(variables?.colors?.primary),
-				borderColor: variables?.colors?.secondary,
+				...custom.styles.activeText(roles.brand),
+				borderColor: roles.brand,
 			},
 		},
 		'& .ss__pagination__page--previous, & .ss__pagination__page--next': {
 			'.ss__icon': {
-				...custom.styles.indicator(variables?.colors?.accent),
+				...custom.styles.indicator(roles.structure),
 			},
 		},
 	});

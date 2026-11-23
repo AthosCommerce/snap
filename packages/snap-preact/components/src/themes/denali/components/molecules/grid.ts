@@ -6,10 +6,11 @@ import { custom } from '../../custom';
 // CSS in JS style script for the Grid component
 const gridStyleScript = ({ theme }: Partial<GridProps>) => {
 	const variables = theme?.variables;
+	const roles = custom.colorRoles(variables);
 
 	return css({
 		'.ss__grid__title': {
-			color: variables?.colors?.secondary,
+			color: roles.structure,
 		},
 		'.ss__grid__options': {
 			'.ss__grid__option': {
@@ -28,7 +29,7 @@ const gridStyleScript = ({ theme }: Partial<GridProps>) => {
 					borderRadius: 'inherit',
 				},
 				'&.ss__grid__option--selected': {
-					border: `2px solid ${variables?.colors?.secondary}`,
+					border: `2px solid ${roles.brand}`,
 					fontWeight: 'bold',
 				},
 				'&.ss__grid__show-more-wrapper': {
@@ -39,7 +40,7 @@ const gridStyleScript = ({ theme }: Partial<GridProps>) => {
 		},
 		'.ss__grid__show-more-wrapper': {
 			'.ss__grid__show-more, .ss__grid__show-less': {
-				...custom.styles.activeText(variables?.colors?.primary),
+				...custom.styles.activeText(roles.structure),
 			},
 		},
 	});

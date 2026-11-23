@@ -31,9 +31,6 @@ const galleryStyleScript = () => {
 		'.ss__gallery__button': {
 			width: '36px',
 			height: '36px',
-			'&.ss__button--disabled': {
-				opacity: 0.4,
-			},
 		},
 		// closing is a bare X, like the quickview's and the sidebar's close buttons - white on the dark backdrop
 		'.ss__gallery__button.ss__gallery__close': {

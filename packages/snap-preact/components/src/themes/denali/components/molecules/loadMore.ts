@@ -6,6 +6,7 @@ import { custom } from '../../custom';
 // CSS in JS style script for the LoadMore component
 const loadMoreStyleScript = ({ color, theme }: LoadMoreProps) => {
 	const variables = theme?.variables;
+	const roles = custom.colorRoles(variables);
 
 	return css({
 		'.ss__button': {
@@ -15,13 +16,18 @@ const loadMoreStyleScript = ({ color, theme }: LoadMoreProps) => {
 				gap: '5px',
 			},
 		},
+		// with no next page the button stays in place - faded like the theme's other disabled buttons, since the
+		// component's 0.7 barely changes an outlined button
+		'&.ss__load-more .ss__load-more__button--disabled': {
+			opacity: 0.4,
+		},
 
 		// the track comes from the `backgroundColor` prop - the component's own selector outweighs this script
 		'&.ss__load-more .ss__load-more__progress .ss__load-more__progress__indicator': {
 			borderRadius: '2em',
 			overflow: 'hidden',
 			'.ss__load-more__progress__indicator__bar': {
-				background: color || variables?.colors?.accent,
+				background: color || roles.brand,
 				borderRadius: '2em',
 			},
 		},
