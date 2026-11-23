@@ -6,6 +6,7 @@ import type {
 import { recommendationBundleListThemeComponentProps } from '../../../themeComponents/recommendationBundleList';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
+import { bundleCtaButtonSharedStyles } from './recommendationBundleShared';
 
 const prefix = '.ss__recommendation-bundle-list';
 
@@ -15,6 +16,7 @@ const recommendationBundleListStyleScript = ({ theme }: RecommendationBundleList
 
 	return css({
 		margin: '20px 0',
+		...bundleCtaButtonSharedStyles('ss__recommendation-bundle-list', theme),
 		// the tracker renders the list after the cta - space them with a gap
 		'.ss__recommendation-profile-tracker': {
 			display: 'flex',
@@ -99,6 +101,8 @@ const recommendationBundleListStyleScript = ({ theme }: RecommendationBundleList
 				[`${prefix}__wrapper__selector__result-wrapper__checkbox`]: {
 					flex: '0 0 auto',
 					position: 'static',
+					// the component's 20px minimum makes the 18px box 2px wider than it is tall
+					minWidth: 0,
 				},
 				'.ss__result': {
 					flex: '1 1 0%',

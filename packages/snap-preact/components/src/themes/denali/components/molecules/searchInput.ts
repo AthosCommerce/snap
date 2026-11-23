@@ -12,6 +12,10 @@ const searchInputStyleScript = ({ theme }: SearchInputProps) => {
 		borderRadius: '2em',
 		padding: '0 10px 0 15px',
 		'.ss__search-input__input': {
+			// the input gives way to the icons - a long placeholder or query is cut off before them
+			flex: '1 1 0%',
+			minWidth: 0,
+			textOverflow: 'ellipsis',
 			padding: '8px 0',
 			backgroundColor: 'transparent',
 			'&::placeholder': {

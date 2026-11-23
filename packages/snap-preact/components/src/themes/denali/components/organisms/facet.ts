@@ -40,9 +40,11 @@ const facetStyleScript = ({ color, theme }: FacetProps) => {
 			fontWeight: 'bold',
 			borderBottom: '0px',
 			padding: 0,
-			// a text action, not a pill button
+			// a text action, not a pill button - underlined and lighter than the title it sits beside
 			'& .ss__facet__header__clear-all': {
 				color: 'inherit',
+				fontWeight: 'normal',
+				textDecoration: 'underline',
 				'&, &:hover, &:not(.ss__button--disabled):hover': {
 					padding: 0,
 					border: 0,
@@ -64,9 +66,11 @@ const facetStyleScript = ({ color, theme }: FacetProps) => {
 			},
 		},
 		'& .ss__facet__range-inputs .ss__facet__range-input': {
+			// pill inputs, like the quantity picker's
 			border: `1px solid ${custom.colors.controlBorder}`,
-			borderRadius: '3px',
+			borderRadius: '2em',
 			overflow: 'hidden',
+			backgroundColor: custom.colors.white,
 		},
 		'& .ss__facet__show-more-less': {
 			margin: '8px 5px',

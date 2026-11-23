@@ -13,10 +13,15 @@ const carouselStyleScript = ({ theme }: CarouselProps) => {
 			display: 'flex',
 			alignItems: 'center',
 			justifyContent: 'center',
-			width: '32px',
+			// a circle around an icon - text buttons (`prevButton`, `nextButton`) widen into a pill
+			boxSizing: 'border-box',
+			minWidth: '32px',
 			height: '32px',
 			padding: 0,
-			borderRadius: '50%',
+			borderRadius: '16px',
+			'&:not(:has(.ss__icon))': {
+				padding: '0 12px',
+			},
 			border: `2px solid ${secondary}`,
 			backgroundColor: custom.colors.white,
 			color: secondary,

@@ -5,8 +5,13 @@ import { ThemeComponent } from '../../../../providers';
 // CSS in JS style script for the Filter component
 const filterStyleScript = ({}: FilterProps) => {
 	return css({
-		// the chip is a link - keep the site's link color off it so the pill follows the page color
-		color: 'inherit',
+		// the chip is a link - keep the site's link colors off it so the pill follows the page color. the doubled
+		// class out-specifies a store's `a:hover` rule, which a single class does not
+		'&.ss__filter': {
+			'&, &:hover, &:focus': {
+				color: 'inherit',
+			},
+		},
 		// a compact chip - a thinner outline and tighter padding than an action button, so a row of them wraps less
 		'& .ss__filter__button': {
 			padding: '6px 12px',

@@ -11,6 +11,7 @@ import { facetListOptions } from './facetListOptions';
 import { facetPaletteOptions } from './facetPaletteOptions';
 import { facetSlider } from './facetSlider';
 import { filter } from './filter';
+import { gallery } from './gallery';
 import { grid } from './grid';
 import { layoutSelector } from './layoutSelector';
 import { list } from './list';
@@ -46,6 +47,7 @@ export const molecules = {
 		...facetPaletteOptions.default,
 		...facetSlider.default,
 		...filter.default,
+		...gallery.default,
 		...grid.default,
 		...layoutSelector.default,
 		...list.default,
@@ -80,6 +82,7 @@ export const molecules = {
 		...facetPaletteOptions.mobile,
 		...facetSlider.mobile,
 		...filter.mobile,
+		...gallery.mobile,
 		...grid.mobile,
 		...layoutSelector.mobile,
 		...list.mobile,
@@ -114,6 +117,7 @@ export const molecules = {
 		...facetPaletteOptions.tablet,
 		...facetSlider.tablet,
 		...filter.tablet,
+		...gallery.tablet,
 		...grid.tablet,
 		...layoutSelector.tablet,
 		...list.tablet,
@@ -148,6 +152,7 @@ export const molecules = {
 		...facetPaletteOptions.desktop,
 		...facetSlider.desktop,
 		...filter.desktop,
+		...gallery.desktop,
 		...grid.desktop,
 		...layoutSelector.desktop,
 		...list.desktop,

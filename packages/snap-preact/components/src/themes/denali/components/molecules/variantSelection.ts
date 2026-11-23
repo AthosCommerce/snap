@@ -8,6 +8,10 @@ const variantSelectionStyleScript = ({ theme }: VariantSelectionProps) => {
 	const variables = theme?.variables;
 
 	return css({
+		// the list's title is the field name ("color") - capitalized like the dropdown's label
+		'.ss__list__title': {
+			textTransform: 'capitalize',
+		},
 		'.ss__variant-selection__dropdown': {
 			'.ss__dropdown__button': {
 				borderRadius: '25px',
@@ -48,6 +52,7 @@ const variantSelectionStyleScript = ({ theme }: VariantSelectionProps) => {
 				marginLeft: '15px',
 				marginRight: '7px',
 				// a white disc behind the chevron, like the sort by pill
+				boxSizing: 'border-box',
 				background: custom.colors.white,
 				padding: '5px',
 				borderRadius: '50%',

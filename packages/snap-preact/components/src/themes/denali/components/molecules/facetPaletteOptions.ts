@@ -89,9 +89,10 @@ export const facetPaletteOptions: ThemeComponent<'facetPaletteOptions', FacetPal
 	default: {
 		facetPaletteOptions: {
 			themeStyleScript: facetPaletteStyleScript,
-			// auto-fill: as many 44px+ columns as the container fits (sidebar, slideout or dropdown)
+			// auto-fill: as many 32px+ columns as the container fits, each stretching to share the row - six across
+			// the desktop sidebar's facet card
 			columns: 0,
-			gridSize: '44px',
+			gridSize: '42px',
 			gapSize: '6px',
 			hideLabel: true,
 			hideIcon: false,
@@ -100,6 +101,17 @@ export const facetPaletteOptions: ThemeComponent<'facetPaletteOptions', FacetPal
 		'facetPaletteOptions icon': {
 			size: '50%',
 			icon: 'check-thin',
+		},
+	},
+	// where facets are in the touch slideout the swatches keep a 44px tap target
+	mobile: {
+		facetPaletteOptions: {
+			gridSize: '44px',
+		},
+	},
+	tablet: {
+		facetPaletteOptions: {
+			gridSize: '44px',
 		},
 	},
 };

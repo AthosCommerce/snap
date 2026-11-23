@@ -8,6 +8,25 @@ const overlayGap = 5; // space between the checkbox / seed badge and the overlay
 const checkboxSize = 18; // the bundle selector's checkbox size
 const seedBadgeHeight = 21;
 
+// add all to cart is the bundle's main action - filled, like Apply, See more and More info
+export const bundleCtaButtonSharedStyles = (prefix: string, theme?: Theme): CSSObject => {
+	const activeColors = custom.utils.activeColors(theme?.variables?.colors?.secondary || custom.colors.black);
+
+	return {
+		[`.${prefix}__wrapper__cta .${prefix}__wrapper__cta__button`]: {
+			padding: '12px 20px',
+			'&, &:not(.ss__button--disabled):hover': {
+				backgroundColor: activeColors[0],
+				borderColor: activeColors[0],
+				color: activeColors[1],
+			},
+			'&:not(.ss__button--disabled):hover': {
+				opacity: 0.8,
+			},
+		},
+	};
+};
+
 // the selector (checkbox and seed badge over the result image) shared by the bundle templates - each
 // template renders it under its own classname prefix (`ss__recommendation-bundle`, `ss__recommendation-bundle-vertical`)
 export const bundleSelectorSharedStyles = (prefix: string, theme?: Theme): CSSObject => {
@@ -25,8 +44,9 @@ export const bundleSelectorSharedStyles = (prefix: string, theme?: Theme): CSSOb
 				lineHeight: `${seedBadgeHeight}px`,
 				backgroundColor: activeColors[0],
 				color: activeColors[1],
-				padding: '0px 5px',
-				borderRadius: '3px',
+				// a pill, like the overlay badges it sits above
+				padding: '0px 10px',
+				borderRadius: '2em',
 			},
 			[`& ${resultWrapper}__checkbox`]: {
 				top: `${overlayInset}px`,
@@ -50,6 +70,7 @@ export const bundleListRowSharedStyles = (prefix: string, theme?: Theme): CSSObj
 
 	return {
 		margin: '20px 0',
+		...bundleCtaButtonSharedStyles(prefix, theme),
 		[`.${prefix}__title`]: {
 			color: variables?.colors?.secondary,
 		},

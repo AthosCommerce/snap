@@ -11,8 +11,9 @@ const tabSelectionStyleScript = ({ theme }: TabSelectionProps) => {
 		'.ss__tab-selection__title': {
 			color: variables?.colors?.secondary,
 		},
+		// inactive tabs keep their full color in a pale outline, like the page chips - the active one is bold in a dark outline
 		'.ss__tab-selection__tabs .ss__button.ss__tab-selection__button': {
-			color: custom.colors.gray03,
+			color: 'inherit',
 			'&, &:hover, &:not(.ss__button--disabled):hover': {
 				borderColor: custom.colors.gray02,
 				backgroundColor: custom.colors.white,

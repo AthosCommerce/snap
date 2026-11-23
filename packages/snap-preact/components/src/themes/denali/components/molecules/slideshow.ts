@@ -10,6 +10,8 @@ const slideshowStyleScript = ({ theme }: SlideshowProps) => {
 
 	return css({
 		'.ss__slideshow__navigation .ss__button': {
+			// 32px including the outline, like the carousel's arrows
+			boxSizing: 'border-box',
 			width: '32px',
 			height: '32px',
 			padding: 0,

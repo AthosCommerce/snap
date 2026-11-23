@@ -15,6 +15,10 @@ const overlayResultStyleScript = ({ theme }: OverlayResultProps) => {
 		'.ss__overlay-result__details .ss__variant-selection__dropdown .ss__dropdown__button': {
 			color: custom.colors.black,
 		},
+		// so does the add to cart button's white fill
+		'.ss__overlay-result__details .ss__button': {
+			color: custom.colors.black,
+		},
 	});
 };
 

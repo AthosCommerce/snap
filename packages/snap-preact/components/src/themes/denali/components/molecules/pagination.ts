@@ -8,19 +8,22 @@ const paginationStyleScript = ({ theme }: PaginationProps) => {
 	const variables = theme?.variables;
 
 	return css({
-		// every chip (numbers and arrows) is the same height, its content centered
+		// every chip (numbers and arrows) is the same height, its content centered - a round chip with the theme's
+		// 2px outline, pale until it is the current page, like the tabs
 		'& .ss__pagination__page': {
 			display: 'inline-flex',
 			alignItems: 'center',
 			justifyContent: 'center',
 			boxSizing: 'border-box',
-			height: '33px',
-			minWidth: '33px',
+			height: '32px',
+			minWidth: '32px',
 			verticalAlign: 'middle',
-			border: `1px solid ${custom.colors.gray02}`,
-			borderRadius: '10px',
+			border: `2px solid ${custom.colors.gray02}`,
+			borderRadius: '2em',
 			background: custom.colors.white,
-			padding: '0 10px',
+			// 8px each side makes a single digit or a lone chevron exactly as wide as the chip is tall - a circle.
+			// longer page numbers and text buttons widen it into a pill
+			padding: '0 8px',
 			margin: '0px 5px',
 			color: 'inherit',
 

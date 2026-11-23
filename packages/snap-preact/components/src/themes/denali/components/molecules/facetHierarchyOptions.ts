@@ -6,6 +6,7 @@ import { custom } from '../../custom';
 // CSS in JS style script for the FacetHierarchyOptions component
 const facetHierarchyOptionsStyleScript = ({ horizontal, theme }: FacetHierarchyOptionsProps) => {
 	const variables = theme?.variables;
+	const activeColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.black);
 
 	// shared styles
 	const sharedStyles = css({
@@ -28,12 +29,22 @@ const facetHierarchyOptionsStyleScript = ({ horizontal, theme }: FacetHierarchyO
 	const horizontalStyles = css([
 		sharedStyles,
 		{
+			// chips, with the same outline, hover and filled selected state as the grid options
 			'.ss__facet-hierarchy-options__option': {
-				border: `1px solid ${variables?.colors?.secondary}`,
+				border: `1px solid ${custom.colors.controlBorder}`,
 				borderRadius: '2em',
 				padding: '0.5em 1em',
+				'&:hover:not(.ss__facet-hierarchy-options__option--filtered)': {
+					background: custom.colors.gray02,
+				},
 				'&.ss__facet-hierarchy-options__option--filtered': {
 					marginRight: '2em',
+					background: activeColors[0],
+					borderColor: activeColors[0],
+					...custom.styles.activeText(activeColors[1]),
+					'.ss__facet-hierarchy-options__option__value__count': {
+						color: 'inherit',
+					},
 				},
 			},
 		},

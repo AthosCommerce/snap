@@ -93,6 +93,22 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 					width: `${defaultSwatchesSize}px`,
 					margin: 0,
 					borderRadius: '50%',
+					// the same ring and white gap as a selected swatch in the carousel
+					'&.ss__grid__option--selected': {
+						border: `2px solid ${variables?.colors?.secondary}`,
+						'.ss__grid__option__inner': {
+							boxSizing: 'border-box',
+							border: `2px solid ${custom.colors.white}`,
+							borderRadius: '50%',
+						},
+					},
+					// dark swatches turn their text white - keep that on the label, so the ring stays dark
+					'&.ss__grid__option--dark': {
+						color: 'inherit',
+						'.ss__grid__option__label': {
+							color: custom.colors.white,
+						},
+					},
 				},
 			},
 		},

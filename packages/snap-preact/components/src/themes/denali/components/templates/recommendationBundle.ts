@@ -3,7 +3,7 @@ import type { RecommendationBundleProps, RecommendationBundleTemplatesLegalProps
 import { recommendationBundleThemeComponentProps } from '../../../themeComponents/recommendationBundle';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
-import { bundleSelectorSharedStyles } from './recommendationBundleShared';
+import { bundleCtaButtonSharedStyles, bundleSelectorSharedStyles } from './recommendationBundleShared';
 
 // CSS in JS style script for the RecommendationBundle component
 const recommendationBundleStyleScript = ({ theme }: RecommendationBundleProps) => {
@@ -13,6 +13,7 @@ const recommendationBundleStyleScript = ({ theme }: RecommendationBundleProps) =
 		margin: '20px 0',
 
 		...bundleSelectorSharedStyles('ss__recommendation-bundle', theme),
+		...bundleCtaButtonSharedStyles('ss__recommendation-bundle', theme),
 
 		// cards fill their slide (the carousel equalizes slides to the tallest) with the variant selections
 		// pinned to the bottom, so every card and the CTA share one bottom edge

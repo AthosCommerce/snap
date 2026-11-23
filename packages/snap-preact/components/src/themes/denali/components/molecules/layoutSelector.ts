@@ -14,18 +14,24 @@ const layoutSelectorStyleScript = ({ theme }: LayoutSelectorProps) => {
 			gap: '7px',
 		},
 
-		// inactive options are muted - ring and icon in the same gray
+		// inactive options keep their full color in a pale ring, like the page chips - only the selected one is filled
+		// 36px circles, the height of the sort by pill beside them in a toolbar
 		'.ss__list__option': {
-			padding: '10px',
+			padding: '8px',
 			borderRadius: '50%',
-			color: custom.colors.gray03,
-			border: `2px solid ${custom.colors.gray03}`,
+			color: secondary,
+			border: `2px solid ${custom.colors.gray02}`,
 			backgroundColor: custom.colors.white,
 
 			'.ss__icon': {
 				fill: 'currentColor',
 				stroke: 'currentColor',
 			},
+		},
+
+		// the list mutes the unselected icons of a bare icon list - here the ring and fill mark the selection instead
+		'&.ss__list .ss__list__options .ss__list__option:not(.ss__list__option--selected) .ss__list__option__icon': {
+			...custom.styles.indicator('currentColor'),
 		},
 
 		// out-specify the list's selected text color (primary) - the fill needs its contrast color
@@ -53,8 +59,9 @@ export const layoutSelector: ThemeComponent<'layoutSelector', LayoutSelectorProp
 			hideLabel: true,
 			hideOptionLabels: true,
 		},
-		'layoutSelector icon': {
-			size: '12px',
+		// as specific as the list's own icon size, which otherwise ties with a shorter selector and wins
+		'layoutSelector list icon': {
+			size: '16px',
 		},
 	},
 };

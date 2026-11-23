@@ -14,7 +14,8 @@ const gridStyleScript = ({ theme }: Partial<GridProps>) => {
 		'.ss__grid__options': {
 			'.ss__grid__option': {
 				border: `1px solid ${custom.colors.controlBorder}`,
-				borderRadius: '3px',
+				// rounded like the facet grid options
+				borderRadius: '10px',
 				// the inner square sizes from the option's height and overflows a capped width
 				boxSizing: 'border-box',
 				padding: 0,
@@ -27,7 +28,7 @@ const gridStyleScript = ({ theme }: Partial<GridProps>) => {
 					borderRadius: 'inherit',
 				},
 				'&.ss__grid__option--selected': {
-					border: `3px solid ${variables?.colors?.secondary}`,
+					border: `2px solid ${variables?.colors?.secondary}`,
 					fontWeight: 'bold',
 				},
 				'&.ss__grid__show-more-wrapper': {

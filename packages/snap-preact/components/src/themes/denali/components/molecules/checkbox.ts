@@ -9,7 +9,7 @@ const checkboxStyleScript = ({ color, iconColor, theme }: CheckboxProps) => {
 
 	return css({
 		border: `2px solid ${color || custom.colors.controlBorder}`,
-		borderRadius: '3px',
+		borderRadius: '5px',
 		backgroundColor: custom.colors.white,
 		'.ss__checkbox__icon': {
 			...custom.styles.indicator(iconColor || variables?.colors?.accent),

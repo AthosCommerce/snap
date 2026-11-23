@@ -19,6 +19,19 @@ const filterSummaryStyleScript = ({ theme }: FilterSummaryProps) => {
 			gap: '6px',
 		},
 
+		// clear all is a text action, not another chip - bold and underlined like a facet's View More
+		'& .ss__filter-summary__filters .ss__filter.ss__filter-summary__clear-all .ss__filter__button': {
+			'&, &:hover, &:not(.ss__button--disabled):hover': {
+				border: 0,
+				backgroundColor: 'transparent',
+				padding: '6px 8px',
+			},
+			...custom.styles.activeText(variables?.colors?.primary),
+			'.ss__filter__value': {
+				borderBottom: '1px solid currentColor',
+			},
+		},
+
 		'&.ss__filter-summary--list .ss__filter-summary__filters .ss__filter .ss__filter__button .ss__button__content': {
 			gap: '8px',
 			'.ss__icon': {
@@ -43,6 +56,8 @@ export const filterSummary: ThemeComponent<'filterSummary', FilterSummaryProps, 
 			themeStyleScript: filterSummaryStyleScript,
 			hideFacetLabel: true,
 			hideTitle: true,
+			// no X on clear all - the Xs mark the individual filters, and this is a text action beside them
+			clearAllIcon: false,
 		},
 	},
 };

@@ -9,6 +9,8 @@ const quantityPickerStyleScript = ({}: QuantityPickerProps) => {
 		'.ss__quantity-picker__controls-wrapper': {
 			gap: '5px',
 			'.ss__button.ss__quantity-picker__button': {
+				// 32px including the outline, the same height as the input between them
+				boxSizing: 'border-box',
 				width: '32px',
 				height: '32px',
 				padding: 0,
