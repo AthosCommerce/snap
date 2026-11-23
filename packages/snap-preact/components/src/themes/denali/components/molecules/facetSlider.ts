@@ -15,8 +15,7 @@ const facetSliderStyleScript = ({
 	theme,
 }: FacetSliderProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
-	const handle = handleColor || roles.brand;
+	const handle = handleColor || variables?.colors?.primary;
 
 	return css({
 		marginBottom: showTicks && stickyHandleLabel ? '22px' : showTicks || stickyHandleLabel ? '10px' : '5px',
@@ -26,7 +25,7 @@ const facetSliderStyleScript = ({
 		},
 
 		'& .ss__facet-slider__rail': {
-			background: railColor || roles.brand,
+			background: railColor || variables?.colors?.primary,
 			borderRadius: '3px',
 		},
 

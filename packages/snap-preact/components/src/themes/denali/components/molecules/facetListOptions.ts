@@ -6,8 +6,7 @@ import { custom } from '../../custom';
 // CSS in JS style script for the FacetListOptions component
 const facetListOptionsStyleScript = ({ horizontal, theme }: FacetListOptionsProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
-	const activeColors = roles.brandFill;
+	const activeColors = custom.utils.activeColors(variables?.colors?.primary || custom.colors.black);
 
 	return css({
 		'& .ss__facet-list-options__option': {
@@ -19,7 +18,7 @@ const facetListOptionsStyleScript = ({ horizontal, theme }: FacetListOptionsProp
 				cursor: 'pointer',
 			},
 			'&.ss__facet-list-options__option--filtered': {
-				...custom.styles.activeText(roles.brand),
+				...custom.styles.activeText(variables?.colors?.primary),
 			},
 			// horizontal options are chips, with the same outline, hover and filled selected state as the grid options
 			...(horizontal

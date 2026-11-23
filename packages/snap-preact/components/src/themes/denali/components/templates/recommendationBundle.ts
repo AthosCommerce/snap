@@ -8,7 +8,6 @@ import { bundleCtaButtonSharedStyles, bundleSelectorSharedStyles } from './recom
 // CSS in JS style script for the RecommendationBundle component
 const recommendationBundleStyleScript = ({ theme }: RecommendationBundleProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return css({
 		margin: '20px 0',
@@ -64,7 +63,7 @@ const recommendationBundleStyleScript = ({ theme }: RecommendationBundleProps) =
 				gap: '5px',
 
 				'.ss__recommendation-bundle__wrapper__cta__subtotal__title': {
-					color: roles.structure,
+					color: variables?.colors?.secondary,
 				},
 				'.ss__recommendation-bundle__wrapper__cta__subtotal__price': {
 					fontSize: '18px',

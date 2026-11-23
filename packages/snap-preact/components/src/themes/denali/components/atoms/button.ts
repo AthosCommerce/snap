@@ -6,7 +6,7 @@ import { custom } from '../../custom';
 // CSS in JS style script for the Button component
 const buttonStyleScript = ({ backgroundColor, borderColor, color, theme }: ButtonProps) => {
 	const variables = theme?.variables;
-	const secondary = custom.colorRoles(variables).structure || custom.colors.black;
+	const secondary = variables?.colors?.secondary || custom.colors.black;
 	const activeColors = custom.utils.activeColors(backgroundColor || secondary);
 	const fill = backgroundColor ? activeColors[0] : custom.colors.white;
 	const outline = borderColor || (backgroundColor ? activeColors[0] : secondary);

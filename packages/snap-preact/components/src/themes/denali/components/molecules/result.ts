@@ -1,12 +1,10 @@
 import { css } from '@emotion/react';
 import type { ResultProps, ResultTemplatesLegalProps } from '../../../../components/Molecules/Result';
 import { ThemeComponent } from '../../../../providers';
-import { custom } from '../../custom';
 
 // CSS in JS style script for the Result component
 const resultStyleScript = ({ theme }: ResultProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return css({
 		// grid cards: every image is centered in a square, so cards in a row line up whatever the photo's shape
@@ -49,7 +47,7 @@ const resultStyleScript = ({ theme }: ResultProps) => {
 		},
 		'&.ss__result--sale .ss__result__details__pricing .ss__result__price:not(.ss__price--strike)': {
 			'&, span': {
-				color: roles.highlight,
+				color: variables?.colors?.accent,
 			},
 		},
 	});

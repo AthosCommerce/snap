@@ -6,8 +6,7 @@ import { custom } from '../../custom';
 // CSS in JS style script for the Carousel component
 const carouselStyleScript = ({ theme }: CarouselProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
-	const secondary = roles.structure || custom.colors.black;
+	const secondary = variables?.colors?.secondary || custom.colors.black;
 
 	return css({
 		'.ss__carousel__prev, .ss__carousel__next': {
@@ -59,13 +58,13 @@ const carouselStyleScript = ({ theme }: CarouselProps) => {
 			background: custom.colors.controlBorder,
 			opacity: 1,
 			'&.swiper-pagination-bullet-active': {
-				background: roles.brand,
+				background: variables?.colors?.primary,
 			},
 		},
 		'.swiper-scrollbar': {
 			backgroundColor: custom.colors.gray01,
 			'.swiper-scrollbar-drag': {
-				backgroundColor: roles.brand,
+				backgroundColor: variables?.colors?.primary,
 			},
 		},
 	});

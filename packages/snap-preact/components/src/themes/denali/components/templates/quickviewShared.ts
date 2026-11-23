@@ -5,14 +5,13 @@ import { custom } from '../../custom';
 // the quickview layout inside both quickview templates (QuickviewLayout itself is not themed directly)
 export const quickviewSharedStyles = (theme?: Theme): CSSObject => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
-	const moreInfoColors = roles.brandFill;
+	const moreInfoColors = custom.utils.activeColors(variables?.colors?.primary || custom.colors.black);
 
 	// nested under `.ss__quickview` to out-specify the layout's own (later inserted) rules
 	return {
 		'.ss__quickview': {
 			'.ss__quickview__title, .ss__quickview__variant-title': {
-				color: roles.structure,
+				color: variables?.colors?.secondary,
 			},
 			'.ss__quickview__variant-title': {
 				textTransform: 'capitalize',

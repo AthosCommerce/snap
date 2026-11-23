@@ -6,7 +6,6 @@ import { custom } from '../../custom';
 // CSS in JS style script for the Select component
 const selectStyleScript = ({ backgroundColor, theme }: SelectProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 	const fill = backgroundColor || custom.colors.gray01;
 	// hovered and selected rows tint a passed background - on the theme's gray they are a darker gray and white
 	const hoverFill = backgroundColor ? custom.utils.rowTint(backgroundColor) : custom.colors.gray02;
@@ -37,7 +36,7 @@ const selectStyleScript = ({ backgroundColor, theme }: SelectProps) => {
 					marginLeft: '15px',
 					transition: 'transform 0.25s ease 0s',
 					// on a passed background the chevron takes that color, so it shows on the white disc
-					...custom.styles.indicator(backgroundColor || roles.structure),
+					...custom.styles.indicator(backgroundColor || variables?.colors?.secondary),
 				},
 			},
 			// the open list is one rounded card behind the pill, with inset rows - it floats over what is beneath
@@ -83,7 +82,7 @@ const selectStyleScript = ({ backgroundColor, theme }: SelectProps) => {
 					backgroundColor: hoverFill,
 				},
 				'&.ss__select__select__option--selected': {
-					...custom.styles.activeText(roles.brand),
+					...custom.styles.activeText(variables?.colors?.primary),
 					backgroundColor: selectedFill,
 				},
 			},

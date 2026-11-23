@@ -6,12 +6,11 @@ import { custom } from '../../custom';
 // CSS in JS style script for the LoadingBar component
 const loadingBarStyleScript = ({ color, theme }: LoadingBarProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return css({
 		// the track comes from the `backgroundColor` prop
 		'& .ss__loading-bar__bar': {
-			background: color || roles.brand,
+			background: color || variables?.colors?.primary,
 		},
 	});
 };

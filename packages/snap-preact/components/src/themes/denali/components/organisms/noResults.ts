@@ -6,14 +6,13 @@ import { custom } from '../../custom';
 // CSS in JS style script for the NoResults component
 const noResultsStyleScript = ({ theme }: NoResultsProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return css({
 		'.ss__no-results__suggestions__title, .ss__no-results__contact__title, .ss__no-results__recommendations .ss__recommendation__title': {
-			color: roles.structure,
+			color: variables?.colors?.secondary,
 		},
 		a: {
-			color: roles.structure,
+			color: variables?.colors?.secondary,
 		},
 		// suggestions and contacts are gray rounded cards, like the autocomplete's no results message
 		'.ss__no-results__suggestions, .ss__no-results__contact': {

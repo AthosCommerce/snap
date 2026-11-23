@@ -13,7 +13,6 @@ const prefix = '.ss__recommendation-bundle-list';
 // CSS in JS style script for the RecommendationBundleList component
 const recommendationBundleListStyleScript = ({ theme }: RecommendationBundleListProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return css({
 		margin: '20px 0',
@@ -28,7 +27,7 @@ const recommendationBundleListStyleScript = ({ theme }: RecommendationBundleList
 			},
 		},
 		[`${prefix}__title`]: {
-			color: roles.structure,
+			color: variables?.colors?.secondary,
 		},
 
 		// the selected products and the subtotal are one card, its images a fixed-size preview - they wrap rather than
@@ -56,7 +55,7 @@ const recommendationBundleListStyleScript = ({ theme }: RecommendationBundleList
 					flex: '0 0 90px',
 					padding: 0,
 					'.ss__icon': {
-						...custom.styles.indicator(roles.structure),
+						...custom.styles.indicator(variables?.colors?.secondary),
 						position: 'absolute',
 						top: 0,
 						bottom: 0,
@@ -71,7 +70,7 @@ const recommendationBundleListStyleScript = ({ theme }: RecommendationBundleList
 				alignItems: 'center',
 				gap: '5px',
 				[`${prefix}__wrapper__cta__subtotal__title`]: {
-					color: roles.structure,
+					color: variables?.colors?.secondary,
 				},
 				[`${prefix}__wrapper__cta__subtotal__price`]: {
 					fontSize: '18px',

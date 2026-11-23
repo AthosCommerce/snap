@@ -10,7 +10,7 @@ const seedBadgeHeight = 21;
 
 // add all to cart is the bundle's main action - filled, like Apply, See more and More info
 export const bundleCtaButtonSharedStyles = (prefix: string, theme?: Theme): CSSObject => {
-	const activeColors = custom.colorRoles(theme?.variables).brandFill;
+	const activeColors = custom.utils.activeColors(theme?.variables?.colors?.primary || custom.colors.black);
 
 	return {
 		[`.${prefix}__wrapper__cta .${prefix}__wrapper__cta__button`]: {
@@ -30,7 +30,7 @@ export const bundleCtaButtonSharedStyles = (prefix: string, theme?: Theme): CSSO
 // the selector (checkbox and seed badge over the result image) shared by the bundle templates - each
 // template renders it under its own classname prefix (`ss__recommendation-bundle`, `ss__recommendation-bundle-vertical`)
 export const bundleSelectorSharedStyles = (prefix: string, theme?: Theme): CSSObject => {
-	const activeColors = custom.colorRoles(theme?.variables).brandFill;
+	const activeColors = custom.utils.activeColors(theme?.variables?.colors?.primary || custom.colors.black);
 	const resultWrapper = `.${prefix}__wrapper__selector__result-wrapper`;
 	const badgeGrid = '.ss__overlay-badge .ss__overlay-badge__grid-wrapper';
 
@@ -67,13 +67,12 @@ export const bundleSelectorSharedStyles = (prefix: string, theme?: Theme): CSSOb
 // details right, and the CTA as the same gray rounded card as the carousel and list bundles
 export const bundleListRowSharedStyles = (prefix: string, theme?: Theme): CSSObject => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return {
 		margin: '20px 0',
 		...bundleCtaButtonSharedStyles(prefix, theme),
 		[`.${prefix}__title`]: {
-			color: roles.structure,
+			color: variables?.colors?.secondary,
 		},
 		'.ss__result.ss__result--list': {
 			alignItems: 'center',
@@ -98,7 +97,7 @@ export const bundleListRowSharedStyles = (prefix: string, theme?: Theme): CSSObj
 				alignItems: 'center',
 				gap: '5px',
 				[`.${prefix}__wrapper__cta__subtotal__title`]: {
-					color: roles.structure,
+					color: variables?.colors?.secondary,
 				},
 				[`.${prefix}__wrapper__cta__subtotal__price`]: {
 					fontSize: '18px',

@@ -6,7 +6,6 @@ import { custom } from '../../custom';
 // CSS in JS style script for the FacetPaletteOptions component
 const facetPaletteStyleScript = ({ theme, hideIcon }: FacetPaletteOptionsProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return css({
 		'.ss__facet-palette-options__option': {
@@ -44,7 +43,7 @@ const facetPaletteStyleScript = ({ theme, hideIcon }: FacetPaletteOptionsProps) 
 			},
 
 			'&.ss__facet-palette-options__option--filtered .ss__facet-palette-options__option__value': {
-				...custom.styles.activeText(roles.brand),
+				...custom.styles.activeText(variables?.colors?.primary),
 			},
 			'.ss__facet-palette-options__option__value__count': {
 				color: custom.colors.gray03,
@@ -68,7 +67,7 @@ const facetPaletteStyleScript = ({ theme, hideIcon }: FacetPaletteOptionsProps) 
 					...(hideIcon
 						? {
 								// important, to hold against the component's hover ring color
-								border: `2px solid ${roles.brand} !important`,
+								border: `2px solid ${variables?.colors?.primary} !important`,
 								padding: '2px',
 								backgroundColor: custom.colors.white,
 						  }

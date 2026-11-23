@@ -9,7 +9,6 @@ const swatchesSpacing = 5;
 // CSS in JS style script for the Swatches component
 const swatchesStyleScript = (props: SwatchesProps) => {
 	const variables = props?.theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	// shared styles
 	const sharedStyles = css({
@@ -18,7 +17,7 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 			borderRadius: '50%',
 			overflow: 'hidden',
 			'&.ss__swatches__slideshow__swatch--selected': {
-				border: `2px solid ${roles.brand}`,
+				border: `2px solid ${variables?.colors?.primary}`,
 				// a white gap inside the ring, so it reads on swatches as dark as the ring
 				'.ss__swatches__slideshow__swatch__inner': {
 					boxSizing: 'border-box',
@@ -43,7 +42,7 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 				borderRadius: 0,
 				padding: 0,
 				backgroundColor: 'transparent',
-				...custom.styles.indicator(roles.structure),
+				...custom.styles.indicator(variables?.colors?.secondary),
 			},
 		},
 	});
@@ -96,7 +95,7 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 					borderRadius: '50%',
 					// the same ring and white gap as a selected swatch in the carousel
 					'&.ss__grid__option--selected': {
-						border: `2px solid ${roles.brand}`,
+						border: `2px solid ${variables?.colors?.primary}`,
 						'.ss__grid__option__inner': {
 							boxSizing: 'border-box',
 							border: `2px solid ${custom.colors.white}`,

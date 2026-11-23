@@ -6,13 +6,12 @@ import { custom } from '../../custom';
 // CSS in JS style script for the FilterSummary component
 const filterSummaryStyleScript = ({ theme }: FilterSummaryProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return css({
 		flexWrap: 'wrap',
 		'& .ss__filter-summary__title': {
 			fontWeight: 'bold',
-			color: roles.structure,
+			color: variables?.colors?.secondary,
 		},
 
 		'& .ss__filter-summary__filters': {
@@ -27,7 +26,7 @@ const filterSummaryStyleScript = ({ theme }: FilterSummaryProps) => {
 				backgroundColor: 'transparent',
 				padding: '6px 8px',
 			},
-			...custom.styles.activeText(roles.structure),
+			...custom.styles.activeText(variables?.colors?.secondary),
 			'.ss__filter__value': {
 				borderBottom: '1px solid currentColor',
 			},

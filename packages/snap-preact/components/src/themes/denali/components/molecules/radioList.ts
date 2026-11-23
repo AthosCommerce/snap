@@ -6,14 +6,13 @@ import { custom } from '../../custom';
 // CSS in JS style script for the RadioList component
 const radioListStyleScript = ({ hideOptionRadios, hideOptionLabels, horizontal, theme }: RadioListProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return css({
 		'& .ss__radio-list__title': {
-			color: roles.structure,
+			color: variables?.colors?.secondary,
 		},
 		'& .ss__radio-list__option--selected': {
-			...custom.styles.activeText(roles.brand),
+			...custom.styles.activeText(variables?.colors?.primary),
 		},
 		// a horizontal list wraps rather than squeezing its options or running out of its container
 		...(horizontal
@@ -35,7 +34,7 @@ const radioListStyleScript = ({ hideOptionRadios, hideOptionLabels, horizontal, 
 						},
 						'&.ss__radio-list__option--selected': {
 							backgroundColor: 'transparent',
-							borderColor: roles.brand,
+							borderColor: variables?.colors?.primary,
 						},
 					},
 			  }

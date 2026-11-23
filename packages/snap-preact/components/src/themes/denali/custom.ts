@@ -1,10 +1,8 @@
 import { colord } from 'colord';
-import type { ThemeVariables } from '../../providers';
 
 /*
-	What the theme colors are for - every component asks for a purpose here, never for a color variable, so a
-	color means one thing everywhere. all three default to `currentColor`: an unset theme is monochrome, and
-	setting `primary` alone brands every action and selection.
+	What the theme colors are for - a color means one thing everywhere. all three default to `currentColor`:
+	an unset theme is monochrome, and setting `primary` alone brands every action and selection.
 
 	- primary - BRAND: what the shopper acts on or has chosen. filled main actions (see more, apply, more info,
 	  add all to cart) and every selected, active or current state, drawn in this one color - selected options
@@ -15,26 +13,6 @@ import type { ThemeVariables } from '../../providers';
 	- accent - HIGHLIGHT: what should catch the eye on almost every search - the query in the results header and
 	  in a spelling correction, the untyped part of each autocomplete suggestion, sale prices and rating stars
 */
-const colorRoles = (variables?: ThemeVariables) => {
-	const colors = variables?.colors;
-	const fill = (color?: string): [string, string] => {
-		const parsed = colord(color || '');
-		const solid = parsed.isValid() ? parsed : colord('#000000');
-		return [solid.toHex().toLowerCase(), solid.isDark() ? '#ffffff' : '#000000'];
-	};
-
-	return {
-		// selected and current states - text, rings, outlines and checks
-		brand: colors?.primary,
-		// filled main actions and filled selections - [fill, text on it]; unresolvable colors fill black
-		brandFill: fill(colors?.primary),
-		// titles, resting outlines, icons and text actions
-		structure: colors?.secondary,
-		// the searched query, the untyped part of suggestions, sale prices and rating stars
-		highlight: colors?.accent,
-	};
-};
-
 export const custom = {
 	colors: {
 		white: '#ffffff',
@@ -59,7 +37,6 @@ export const custom = {
 			fill: color || undefined,
 		}),
 	},
-	colorRoles,
 	utils: {
 		// fill and contrast text for a filled control in a passed color (a component's `backgroundColor` prop) -
 		// unresolvable colors (`currentColor`) fall back to black

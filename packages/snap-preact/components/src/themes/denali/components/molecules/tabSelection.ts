@@ -6,11 +6,10 @@ import { custom } from '../../custom';
 // CSS in JS style script for the TabSelection component
 const tabSelectionStyleScript = ({ theme }: TabSelectionProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return css({
 		'.ss__tab-selection__title': {
-			color: roles.structure,
+			color: variables?.colors?.secondary,
 		},
 		// inactive tabs keep their full color in a pale outline, like the page chips - the active one is bold in a dark outline
 		'.ss__tab-selection__tabs .ss__button.ss__tab-selection__button': {
@@ -25,8 +24,8 @@ const tabSelectionStyleScript = ({ theme }: TabSelectionProps) => {
 			'&.ss__tab-selection__button--active': {
 				'&, &:hover, &:not(.ss__button--disabled):hover': {
 					fontWeight: 'bold',
-					color: roles.brand,
-					borderColor: roles.brand,
+					color: variables?.colors?.primary,
+					borderColor: variables?.colors?.primary,
 				},
 			},
 			'.ss__tab-selection__button__count': {

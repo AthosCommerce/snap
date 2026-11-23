@@ -8,7 +8,6 @@ import { AutocompleteModalProps, AutocompleteModalTemplatesLegalProps } from '..
 // CSS in JS style script for the Search component
 const autocompleteModalStyleScript = ({ theme }: AutocompleteModalProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return css({
 		...autocompleteSharedStyles,
@@ -50,7 +49,7 @@ const autocompleteModalStyleScript = ({ theme }: AutocompleteModalProps) => {
 			...autocompleteCloseSearchButtonStyles,
 			right: '-44px',
 		},
-		...autocompleteSeeMoreStyles(roles.brandFill),
+		...autocompleteSeeMoreStyles(custom.utils.activeColors(variables?.colors?.primary || custom.colors.black)),
 	});
 };
 

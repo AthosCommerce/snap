@@ -6,17 +6,16 @@ import { custom } from '../../custom';
 // CSS in JS style script for the Breadcrumbs component
 const breadcrumbsStyleScript = ({ theme }: BreadcrumbsProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return css({
 		'.ss__breadcrumbs__crumbs': {
 			flexWrap: 'wrap',
 			alignItems: 'center',
 			'.ss__breadcrumbs__crumbs__crumb:last-child': {
-				...custom.styles.activeText(roles.brand),
+				...custom.styles.activeText(variables?.colors?.primary),
 			},
 			'.ss__breadcrumbs__crumbs__separator': {
-				...custom.styles.indicator(roles.structure),
+				...custom.styles.indicator(variables?.colors?.secondary),
 			},
 		},
 	});

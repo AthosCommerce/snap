@@ -2,16 +2,14 @@ import { css } from '@emotion/react';
 import type { RecommendationGridProps, RecommendationGridTemplatesLegalProps } from '../../../../components/Templates/RecommendationGrid';
 import { recommendationGridThemeComponentProps } from '../../../themeComponents/recommendationGrid';
 import { ThemeComponent } from '../../../../providers';
-import { custom } from '../../custom';
 // CSS in JS style script for the RecommendationGrid component
 const recommendationGridStyleScript = ({ theme }: RecommendationGridProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return css({
 		margin: '20px 0',
 		'& .ss__recommendation-grid__title': {
-			color: roles.structure,
+			color: variables?.colors?.secondary,
 		},
 	});
 };

@@ -9,7 +9,7 @@ import { AutocompleteFixedProps, AutocompleteFixedTemplatesLegalProps } from '..
 const autocompleteFixedStyleScript = ({ width, theme }: AutocompleteFixedProps) => {
 	return css({
 		...autocompleteSharedStyles,
-		...autocompleteSeeMoreStyles(custom.colorRoles(theme?.variables).brandFill),
+		...autocompleteSeeMoreStyles(custom.utils.activeColors(theme?.variables?.colors?.primary || custom.colors.black)),
 		// the panel's corners are concentric with the 20px cards inset 10px inside it
 		'.ss__autocomplete-fixed__inner .ss__autocomplete': {
 			borderRadius: '30px',

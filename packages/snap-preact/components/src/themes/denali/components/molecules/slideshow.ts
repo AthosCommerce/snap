@@ -6,8 +6,7 @@ import { custom } from '../../custom';
 // CSS in JS style script for the Slideshow component
 const slideshowStyleScript = ({ theme }: SlideshowProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
-	const secondary = roles.structure || custom.colors.black;
+	const secondary = variables?.colors?.secondary || custom.colors.black;
 
 	return css({
 		'.ss__slideshow__navigation .ss__button': {
@@ -48,7 +47,7 @@ const slideshowStyleScript = ({ theme }: SlideshowProps) => {
 			},
 			'&.ss__slideshow__dot--active': {
 				'&, &:hover, &:not(.ss__button--disabled):hover': {
-					background: roles.brand,
+					background: variables?.colors?.primary,
 				},
 			},
 		},

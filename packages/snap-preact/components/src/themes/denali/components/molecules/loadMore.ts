@@ -6,7 +6,6 @@ import { custom } from '../../custom';
 // CSS in JS style script for the LoadMore component
 const loadMoreStyleScript = ({ color, theme }: LoadMoreProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return css({
 		'.ss__button': {
@@ -27,7 +26,7 @@ const loadMoreStyleScript = ({ color, theme }: LoadMoreProps) => {
 			borderRadius: '2em',
 			overflow: 'hidden',
 			'.ss__load-more__progress__indicator__bar': {
-				background: color || roles.brand,
+				background: color || variables?.colors?.primary,
 				borderRadius: '2em',
 			},
 		},

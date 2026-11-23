@@ -6,7 +6,6 @@ import { custom } from '../../custom';
 // CSS in JS style script for the Dropdown component
 const dropdownStyleScript = ({ theme }: DropdownProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return css({
 		position: 'relative',
@@ -40,7 +39,7 @@ const dropdownStyleScript = ({ theme }: DropdownProps) => {
 						backgroundColor: custom.colors.gray02,
 					},
 					'&.ss__variant-selection__option--selected': {
-						...custom.styles.activeText(roles.brand),
+						...custom.styles.activeText(variables?.colors?.primary),
 						backgroundColor: custom.colors.white,
 					},
 				},

@@ -6,7 +6,6 @@ import { custom } from '../../custom';
 // CSS in JS style script for the Facet component
 const facetStyleScript = ({ color, theme }: FacetProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return css({
 		[`@media (min-width: ${variables?.breakpoints.tablet}px)`]: {
@@ -24,7 +23,7 @@ const facetStyleScript = ({ color, theme }: FacetProps) => {
 
 			'& .ss__facet__dropdown__icon': {
 				transition: 'transform ease .5s',
-				...custom.styles.indicator(color || roles.structure),
+				...custom.styles.indicator(color || variables?.colors?.secondary),
 			},
 			'&.ss__dropdown--open': {
 				'& .ss__facet__dropdown__icon': {
@@ -37,7 +36,7 @@ const facetStyleScript = ({ color, theme }: FacetProps) => {
 			},
 		},
 		'& .ss__facet__header': {
-			color: color || roles.structure,
+			color: color || variables?.colors?.secondary,
 			fontWeight: 'bold',
 			borderBottom: '0px',
 			padding: 0,
@@ -76,7 +75,7 @@ const facetStyleScript = ({ color, theme }: FacetProps) => {
 		'& .ss__facet__show-more-less': {
 			margin: '8px 5px',
 			textAlign: 'center',
-			...custom.styles.activeText(color || roles.structure),
+			...custom.styles.activeText(color || variables?.colors?.secondary),
 
 			span: {
 				borderBottom: '1px solid currentColor',

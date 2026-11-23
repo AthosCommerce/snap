@@ -6,7 +6,6 @@ import { custom } from '../../custom';
 // CSS in JS style script for the Radio component
 const radioStyleScript = ({ size, native, color, theme }: RadioProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	if (native) {
 		return css({
@@ -31,7 +30,7 @@ const radioStyleScript = ({ size, native, color, theme }: RadioProps) => {
 			opacity: 0,
 		},
 		'.ss__radio__icon': {
-			...custom.styles.indicator(color || roles.brand),
+			...custom.styles.indicator(color || variables?.colors?.primary),
 		},
 		'&.ss__radio--disabled': {
 			opacity: 0.4,

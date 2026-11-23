@@ -6,7 +6,6 @@ import { custom } from '../../custom';
 // CSS in JS style script for the Terms component
 const termsStyleScript = ({ theme, vertical }: TermsProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return css({
 		// terms sit bare on the panel, so they read apart from the gray facet cards - a list of rows when vertical
@@ -54,10 +53,10 @@ const termsStyleScript = ({ theme, vertical }: TermsProps) => {
 			},
 			'&.ss__terms__option--active': {
 				backgroundColor: 'transparent',
-				borderColor: roles.brand,
+				borderColor: variables?.colors?.primary,
 			},
 			'&.ss__terms__option--active a': {
-				...custom.styles.activeText(roles.brand),
+				...custom.styles.activeText(variables?.colors?.primary),
 			},
 			// in the list a chevron points at the results the active term previews, in the column beside it
 			...(vertical
@@ -82,7 +81,7 @@ const termsStyleScript = ({ theme, vertical }: TermsProps) => {
 			fontStyle: 'normal',
 		},
 		'&.ss__terms-list__terms--suggestions .ss__terms__options .ss__terms__option em': {
-			color: roles.highlight,
+			color: variables?.colors?.accent,
 		},
 		// a vertical list is one term per row - a horizontal one wraps from the left
 		'& .ss__terms__options': {

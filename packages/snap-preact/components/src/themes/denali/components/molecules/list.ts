@@ -6,13 +6,12 @@ import { custom } from '../../custom';
 // CSS in JS style script for the List component
 const listStyleScript = ({ hideOptionCheckboxes, hideOptionLabels, horizontal, theme }: ListProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
 
 	return css({
 		gap: '8px',
 
 		'& .ss__list__title': {
-			color: roles.structure,
+			color: variables?.colors?.secondary,
 			// over text-only rows the title lines up with their text
 			paddingLeft: hideOptionCheckboxes && !hideOptionLabels && !horizontal ? '14px' : undefined,
 		},
@@ -26,7 +25,7 @@ const listStyleScript = ({ hideOptionCheckboxes, hideOptionLabels, horizontal, t
 			},
 
 			'.ss__list__option--selected': {
-				...custom.styles.activeText(roles.brand),
+				...custom.styles.activeText(variables?.colors?.primary),
 			},
 			// text-only options are rounded rows - gray on hover, with the selected one outlined like the active tab
 			...(hideOptionCheckboxes && !hideOptionLabels
@@ -42,7 +41,7 @@ const listStyleScript = ({ hideOptionCheckboxes, hideOptionLabels, horizontal, t
 							},
 							'&.ss__list__option--selected': {
 								backgroundColor: 'transparent',
-								borderColor: roles.brand,
+								borderColor: variables?.colors?.primary,
 							},
 						},
 				  }

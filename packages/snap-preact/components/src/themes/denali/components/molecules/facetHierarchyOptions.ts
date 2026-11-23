@@ -6,8 +6,7 @@ import { custom } from '../../custom';
 // CSS in JS style script for the FacetHierarchyOptions component
 const facetHierarchyOptionsStyleScript = ({ horizontal, theme }: FacetHierarchyOptionsProps) => {
 	const variables = theme?.variables;
-	const roles = custom.colorRoles(variables);
-	const activeColors = roles.brandFill;
+	const activeColors = custom.utils.activeColors(variables?.colors?.primary || custom.colors.black);
 
 	// shared styles
 	const sharedStyles = css({
@@ -15,11 +14,11 @@ const facetHierarchyOptionsStyleScript = ({ horizontal, theme }: FacetHierarchyO
 			color: 'inherit',
 			'&.ss__facet-hierarchy-options__option--return': {
 				'&:before, .ss__icon': {
-					...custom.styles.indicator(roles.structure),
+					...custom.styles.indicator(variables?.colors?.secondary),
 				},
 			},
 			'&.ss__facet-hierarchy-options__option--filtered': {
-				...custom.styles.activeText(roles.brand),
+				...custom.styles.activeText(variables?.colors?.primary),
 			},
 			'.ss__facet-hierarchy-options__option__value__count': {
 				color: custom.colors.gray03,
