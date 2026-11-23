@@ -76,7 +76,7 @@ The three colors each have one job, and the library themes use them the same way
 | `secondary` | Structure | Titles, icons and chevrons, text actions and links (show more, no results), and every other button |
 | `accent` | Highlight | The query in the results header and in a spelling correction, the untyped part of each autocomplete suggestion, sale prices and rating stars |
 
-Every color defaults to `currentColor`, so a theme follows the page's text color until these are set. Setting `primary` alone brands every action and selection. A color too light to read as text, an outline or an icon on white is darkened, keeping its hue, wherever it is used that way; filled controls keep the color and switch their text to black or white.
+Every color defaults to `currentColor`, so a theme follows the page's text color until these are set. Setting `primary` alone brands every action and selection. The colors are used as set, as text, outlines and icons on the page background, so choose colors that read there; filled controls switch their text to black or white to suit the fill.
 
 ### Theme `style`
 Specifies a function that returns [emotion object styles](https://emotion.sh/docs/object-styles). This function receives theme variables as props and allows you to create styles that respond to specific breakpoints. The resulting styles are injected into the document's `<head>` element.

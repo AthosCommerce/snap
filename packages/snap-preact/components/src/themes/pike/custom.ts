@@ -12,19 +12,6 @@ const parseColor = (color: string) => {
 	return parsed.isValid() ? parsed : colord('#000000');
 };
 
-// a theme color used as text, an outline or an icon on the theme's white and light gray surfaces - a color too
-// light to read there is darkened, keeping its hue, until it reaches 3:1 against white. colors that cannot be
-// resolved at style time (`currentColor`, CSS variables) are used as given
-const readable = (color?: string) => {
-	if (!color) return undefined;
-	let parsed = colord(color);
-	if (!parsed.isValid()) return color;
-	for (let step = 0; step < 20 && parsed.contrast('#ffffff') < 3; step++) {
-		parsed = parsed.darken(0.05);
-	}
-	return parsed.toHex().toLowerCase();
-};
-
 // calculate spacing
 const spacing = 5;
 const spacingCalc = (value: number) => {
@@ -60,9 +47,9 @@ const spacingCalc = (value: number) => {
 	    - accent - HIGHLIGHT: what should catch the eye on almost every search - the query in the results
 	      header and in a spelling correction, the untyped part of each autocomplete suggestion, sale
 	      prices and filled rating stars.
-	  Text, outline and icon uses go through `readable`, so a light color is darkened until it reads on
-	  white. `currentColor` cannot be resolved to a hex value at style time, so `utils.activeColors` falls
-	  back to a black fill with white text - the default Pike look is monochrome.
+	  The colors are used as set - text, outline and icon uses sit on white and the gray01 fill, so a color
+	  has to read there. `currentColor` cannot be resolved to a hex value at style time, so
+	  `utils.activeColors` falls back to a black fill with white text - the default Pike look is monochrome.
 	- Neutrals: gray01 fill, gray02 decorative rule, controlBorder control boundary (and empty rating
 	  stars), gray03 muted text (option counts, strike prices, placeholders).
 	- Type: 14px base text (`styles.baseText`); headers are bold (`fonts.weight02`) via
@@ -387,11 +374,11 @@ export const custom: CustomThemeType = {
 			// the theme colors by purpose (see color roles) - fills are [fill, text on it]
 			const colors = variables?.colors;
 			return {
-				brand: readable(colors?.primary),
+				brand: colors?.primary,
 				brandFill: custom.utils.activeColors(colors?.primary || custom.colors.primary),
-				structure: readable(colors?.secondary),
+				structure: colors?.secondary,
 				structureFill: custom.utils.activeColors(colors?.secondary || custom.colors.secondary),
-				highlight: readable(colors?.accent),
+				highlight: colors?.accent,
 			};
 		},
 		getBp: (bp: number, rule?: string) => {
