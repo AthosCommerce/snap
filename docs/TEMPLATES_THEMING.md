@@ -62,7 +62,7 @@ Both themes default every color to `currentColor`, so they follow the page's tex
 | `secondary` | Titles, and control outlines and fills | Titles, resting control outlines, icons and chevrons, and text actions such as View More and Clear All |
 | `accent` | Indicators such as chevrons and check marks | Highlights: the query in the results header and in a spelling correction, the untyped part of each autocomplete suggestion, sale prices and rating stars |
 
-With `denali`, setting `primary` alone brands every action and selection. A color too light to read as text or an outline on the theme's white and light gray surfaces is darkened, keeping its hue, wherever it is used that way; filled controls keep the color and switch their text to black or white.
+With `denali`, setting `primary` alone brands every action and selection. The colors are used as set, as text, outlines and icons on the theme's white and light gray surfaces, so choose colors that read there; filled controls switch their text to black or white to suit the fill.
 
 
 ### Theme `variables`
