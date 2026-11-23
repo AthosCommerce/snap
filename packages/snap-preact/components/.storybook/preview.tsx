@@ -128,9 +128,7 @@ const decorators = [
 
 		const themeDecoratorFn = withThemeFromJSXProvider({
 			themes: {
-				snapnco: snapTemplates.templates.themes.library.snapnco.theme,
 				denali: snapTemplates.templates.themes.library.denali.theme,
-				bocachica: snapTemplates.templates.themes.library.bocachica.theme,
 				base: snapTemplates.templates.themes.library.base.theme,
 				pike: snapTemplates.templates.themes.library.pike.theme,
 			},
