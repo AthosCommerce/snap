@@ -26,7 +26,7 @@ const checkboxStyleScript = (props: CheckboxProps) => {
 			},
 			// the check square is an indicator (the component colors it primary)
 			'.ss__checkbox__icon': {
-				...custom.styles.indicator(props.iconColor || variables?.colors?.accent),
+				...custom.styles.indicator(props.iconColor || variables?.colors?.primary),
 			},
 			'&.ss__checkbox--disabled': {
 				...custom.styles.disabled(),

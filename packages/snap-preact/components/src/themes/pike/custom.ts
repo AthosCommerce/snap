@@ -28,33 +28,33 @@ const spacingCalc = (value: number) => {
 	- Accessibility: control boundaries and state indicators meet WCAG 1.4.11 non-text contrast (3:1
 	  against white and the gray01 fill) - `controlBorder` for borders, 45% black for swatch outlines.
 	  `gray02` is only for decoration that does not identify a control.
-	- Color roles: Pike is monochrome by default (all three theme colors are `currentColor`) and the three
-	  colors tint three layers that every template shows together - the loud layer, the reading layer and
-	  the quiet layer. The library components color their own controls with `primary` (borders, prices,
-	  facet headers, slider fills, check marks, icon fills) and those defaults render under the theme
-	  scripts, so every Pike script sets its colors explicitly - a theme color that "just works" is usually
-	  a leak from a component default.
-	    - secondary - VOICE AND SURFACES: every title (`styles.headerText` - page, sidebar, facet, filter
-	      summary, recommendation, bundle, quickview, list/grid/terms headings) and every filled control
-	      (`utils.activeColors` - buttons, carousel/slideshow arrows, selected grid/swatch/layout options,
-	      slider handles, the bundle seed badge, the quickview hover fill), plus the focus ring.
-	    - primary - EMPHASIS IN TEXT: active/selected option text (`styles.activeText`), the active page
-	      number, the current crumb, the active tab and term, links (no results, header subtitle, show
-	      more/less), the results query and sale prices. Always text, never a fill or a line.
-	    - accent - INDICATORS (`styles.indicator`): the small marks that point - the 2px rule under section
-	      headers and the active tab, check squares and radio bullets, direction chevrons on neutral
-	      surfaces (selects, facet collapse, dropdowns, breadcrumb separators, hierarchy return, pagination
-	      arrows, swatch paging, autocomplete see-more), position and progress marks (carousel bullets and
-	      scrollbar, slideshow dots, slider rail, load more and loading bars) and filled rating stars.
-	      Chevrons inside filled controls stay in the fill's contrast color.
-	  `currentColor` cannot be resolved to a hex value at style time, so `utils.activeColors` falls
-	  back to a black fill with white text - the default Pike look is monochrome.
+	- Color roles: Pike is monochrome by default (all three theme colors are `currentColor`). Each color has
+	  one job, the same in every theme. The library components color their
+	  own controls with `primary` and those defaults render under the theme scripts, so every Pike script
+	  sets its colors explicitly - a theme color that "just works" is usually a leak from a component default.
+	    - primary - BRAND: filled main actions (`utils.activeColors` - the sidebar's Apply, the quickview's More info,
+	      the bundle's add to cart and its seed badge) and every selected, active or current state -
+	      selected option text (`styles.activeText`), the current page, crumb, tab and term, selected
+	      grid/swatch/layout options, check squares and radio bullets, slider handles and rail, the active
+	      tab rule, carousel bullets and scrollbar, slideshow dots, and load more and loading bars.
+	    - secondary - STRUCTURE: every title (`styles.headerText`) and the 2px rule under section headers,
+	      direction chevrons and other icons on neutral surfaces (selects, facet collapse, dropdowns,
+	      breadcrumb separators, hierarchy return, pagination arrows, swatch paging, autocomplete see-more,
+	      the bundle plus), text actions and links (show more/less, no results, header subtitle), the other
+	      fills (`utils.activeColors` - every other button, carousel/slideshow arrows, the search button, the
+	      quickview hover fill) and the focus ring. Chevrons inside filled controls stay in the fill's contrast color.
+	    - accent - HIGHLIGHT: what should catch the eye on almost every search - the query in the results
+	      header and in a spelling correction, the untyped part of each autocomplete suggestion, sale
+	      prices and filled rating stars.
+	  The colors are used as set - text, outline and icon uses sit on white and the gray01 fill, so a color
+	  has to read there. `currentColor` cannot be resolved to a hex value at style time, so
+	  `utils.activeColors` falls back to a black fill with white text - the default Pike look is monochrome.
 	- Neutrals: gray01 fill, gray02 decorative rule, controlBorder control boundary (and empty rating
 	  stars), gray03 muted text (option counts, strike prices, placeholders).
 	- Type: 14px base text (`styles.baseText`); headers are bold (`fonts.weight02`) via
 	  `styles.headerText` - 14px in compact contexts, 16px for facet/sidebar headers, 18-22px for
 	  section titles; option counts 10px; badges and fine print 12px.
-	- States: active = bold + primary text; selected (filled) = secondary fill + contrast text;
+	- States: active = bold + primary text; selected (filled) = primary fill + contrast text;
 	  disabled = `styles.disabled` (0.65 opacity, not-allowed cursor); unavailable variants add a
 	  strike through.
 	- Sizing: controls are `sizes.height` (35px) tall; spacing is a 5px scale (`spacing.x1`-`x8`);

@@ -26,8 +26,8 @@ const filterSummaryStyleScript = (props: FilterSummaryProps) => {
 		? {
 				margin: `0 0 ${custom.spacing.x4}px 0`,
 				padding: `0 0 ${custom.spacing.x2}px 0`,
-				// same anatomy as a facet header - secondary title on the accent rule
-				borderBottom: `2px solid ${variables?.colors?.accent}`,
+				// same anatomy as a facet header - secondary title on a secondary rule
+				borderBottom: `2px solid ${variables?.colors?.secondary}`,
 				...custom.styles.headerText(variables?.colors?.secondary, '16px'),
 		  }
 		: {

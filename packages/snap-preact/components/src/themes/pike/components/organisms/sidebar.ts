@@ -18,6 +18,7 @@ const isPanel = (props: SidebarProps) => /\bslideout\b/.test(props?.treePath || 
 const sidebarStyleScript = (props: SidebarProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const brandColors = custom.utils.activeColors(variables?.colors?.primary || custom.colors.primary);
 
 	// sidebar styles
 	const sidebarStyles = css({
@@ -75,6 +76,14 @@ const sidebarStyleScript = (props: SidebarProps) => {
 			'.ss__button': {
 				flex: '1 1 0%',
 				minWidth: '1px',
+			},
+			// Apply is the panel's main action - filled with the brand color, like More info and the bundle CTA
+			'.ss__sidebar__footer__apply-button': {
+				'&, &:hover, &:not(.ss__button--disabled):hover': {
+					backgroundColor: brandColors[0],
+					borderColor: brandColors[0],
+					color: brandColors[1],
+				},
 			},
 			// secondary action - outlined rather than filled
 			'.ss__sidebar__footer__clear-button': {

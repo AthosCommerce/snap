@@ -26,6 +26,7 @@ export const quickviewCloseTitleOffset = contentPadding + (titleLine - closeIcon
 export const quickviewSharedStyleScript = (props: QuickviewSharedProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const brandColors = custom.utils.activeColors(variables?.colors?.primary || custom.colors.primary);
 
 	// nested under `.ss__quickview` to out-specify the layout's own (later inserted) rules
 	return css({
@@ -68,6 +69,14 @@ export const quickviewSharedStyleScript = (props: QuickviewSharedProps) => {
 				},
 				'p:last-of-type': {
 					marginBottom: 0,
+				},
+			},
+			// More info is the quickview's main action - filled with the brand color, like Apply and the bundle CTA
+			'.ss__button.ss__quickview__go-to-product': {
+				'&, &:hover, &:not(.ss__button--disabled):hover': {
+					backgroundColor: brandColors[0],
+					borderColor: brandColors[0],
+					color: brandColors[1],
 				},
 			},
 			// close is an icon button on the panel - no fill

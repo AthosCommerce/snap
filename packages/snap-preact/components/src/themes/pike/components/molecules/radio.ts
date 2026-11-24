@@ -30,7 +30,7 @@ const radioStyleScript = (props: RadioProps) => {
 			},
 			// the bullet is an indicator (the component colors it primary)
 			'.ss__radio__icon': {
-				...custom.styles.indicator(variables?.colors?.accent),
+				...custom.styles.indicator(variables?.colors?.primary),
 			},
 		},
 	]);
