@@ -1,6 +1,7 @@
 import { css } from '@emotion/react';
 import type { ResultProps, ResultTemplatesLegalProps } from '../../../../components/Molecules/Result';
 import { ThemeComponent } from '../../../../providers';
+import { custom } from '../../custom';
 
 // CSS in JS style script for the Result component
 const resultStyleScript = ({ theme }: ResultProps) => {
@@ -21,6 +22,23 @@ const resultStyleScript = ({ theme }: ResultProps) => {
 				img: {
 					borderRadius: '20px',
 				},
+			},
+		},
+		// the quickview button is a white disc, so the eye reads over any photo
+		'.ss__result__image-wrapper .ss__result__quickview': {
+			alignItems: 'center',
+			justifyContent: 'center',
+			width: '36px',
+			height: '36px',
+			padding: 0,
+			borderRadius: '50%',
+			'&, &:hover, &:not(.ss__button--disabled):hover': {
+				border: `1px solid ${custom.colors.controlBorder}`,
+				backgroundColor: custom.colors.white,
+				color: custom.colors.black,
+			},
+			'&:not(.ss__button--disabled):hover': {
+				backgroundColor: custom.colors.gray01,
 			},
 		},
 		'.ss__result__details a': {

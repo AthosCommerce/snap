@@ -19,7 +19,7 @@ const searchInputStyleScript = ({ theme }: SearchInputProps) => {
 			padding: '8px 0',
 			backgroundColor: 'transparent',
 			'&::placeholder': {
-				color: custom.colors.gray03,
+				color: custom.colors.gray04,
 			},
 			// browsers treat every text field focus as :focus-visible - the pill edge thickens instead of the ring
 			'&:focus': {

@@ -70,7 +70,7 @@ const recommendationBundleStyleScript = ({ theme }: RecommendationBundleProps) =
 					fontWeight: 'bold',
 				},
 				'.ss__recommendation-bundle__wrapper__cta__subtotal__strike': {
-					color: custom.colors.gray03,
+					color: custom.colors.gray04,
 				},
 			},
 		},

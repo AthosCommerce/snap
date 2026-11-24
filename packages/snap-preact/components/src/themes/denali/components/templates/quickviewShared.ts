@@ -52,6 +52,11 @@ export const quickviewSharedStyles = (theme?: Theme): CSSObject => {
 					},
 				},
 			},
+			// the layout sizes the image arrows to their icon - keep them the slideshow's 32px circles
+			'.ss__quickview__carousel .ss__slideshow__navigation .ss__button': {
+				boxSizing: 'border-box',
+				width: '32px',
+			},
 			// a quiet icon button, not a pill
 			'.ss__button.ss__quickview__close': {
 				'&, &:hover, &:not(.ss__button--disabled):hover': {

@@ -45,7 +45,7 @@ const facetListOptionsStyleScript = ({ horizontal, theme }: FacetListOptionsProp
 				'& .ss__facet-list-options__option__value__count': {
 					fontSize: 'inherit',
 					marginLeft: '5px',
-					color: custom.colors.gray03,
+					color: custom.colors.gray04,
 				},
 			},
 		},

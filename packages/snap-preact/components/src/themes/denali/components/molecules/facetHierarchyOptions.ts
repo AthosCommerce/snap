@@ -21,7 +21,7 @@ const facetHierarchyOptionsStyleScript = ({ horizontal, theme }: FacetHierarchyO
 				...custom.styles.activeText(variables?.colors?.primary),
 			},
 			'.ss__facet-hierarchy-options__option__value__count': {
-				color: custom.colors.gray03,
+				color: custom.colors.gray04,
 			},
 		},
 	});

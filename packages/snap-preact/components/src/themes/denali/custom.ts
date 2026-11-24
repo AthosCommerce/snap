@@ -20,8 +20,8 @@ export const custom = {
 		gray01: '#efefef', // light fill: facet cards, dropdown pills, hovered/selected rows, tracks
 		gray02: '#e6e6e6', // decorative rule: chip and page outlines
 		controlBorder: '#cccccc', // control boundary: checkbox/radio boxes, swatch outlines, bullets, empty stars
-		gray03: '#959595', // muted text: counts, strike prices, placeholders, inactive tabs
-		gray04: '#767676', // label text: small titles that still need to be read (4.5:1 on white)
+		gray03: '#959595', // muted indicator: unselected list and radio icons, scrollbar thumbs
+		gray04: '#6b6b6b', // muted text: counts, strike prices, placeholders, labels (4.5:1 on gray01 cards as well as white)
 	},
 	styles: {
 		// active/selected text - bold, in the brand color

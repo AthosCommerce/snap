@@ -46,7 +46,7 @@ const facetPaletteStyleScript = ({ theme, hideIcon }: FacetPaletteOptionsProps) 
 				...custom.styles.activeText(variables?.colors?.primary),
 			},
 			'.ss__facet-palette-options__option__value__count': {
-				color: custom.colors.gray03,
+				color: custom.colors.gray04,
 			},
 		},
 

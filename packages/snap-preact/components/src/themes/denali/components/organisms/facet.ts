@@ -18,9 +18,21 @@ const facetStyleScript = ({ color, theme }: FacetProps) => {
 
 		'& .ss__facet__dropdown': {
 			background: custom.colors.gray01,
-			padding: '20px',
 			borderRadius: '30px',
-
+			// the padding is on the header and options, not the card - the whole header row toggles the facet
+			'.ss__dropdown__button': {
+				padding: '20px',
+			},
+			'&.ss__dropdown--open .ss__dropdown__button': {
+				paddingBottom: 0,
+			},
+			'.ss__dropdown__content': {
+				boxSizing: 'border-box',
+				padding: '0 20px 20px',
+				background: custom.colors.gray01,
+				// the content now reaches the card's edge - round it with the card, so its fill doesn't square the corners
+				borderRadius: 'inherit',
+			},
 			'& .ss__facet__dropdown__icon': {
 				transition: 'transform ease .5s',
 				...custom.styles.indicator(color || variables?.colors?.secondary),
@@ -30,9 +42,6 @@ const facetStyleScript = ({ color, theme }: FacetProps) => {
 					transition: 'transform ease .5s',
 					transform: 'rotate(180deg)',
 				},
-			},
-			'.ss__dropdown__content': {
-				background: custom.colors.gray01,
 			},
 		},
 		'& .ss__facet__header': {

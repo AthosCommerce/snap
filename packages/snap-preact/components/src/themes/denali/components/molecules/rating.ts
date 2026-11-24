@@ -18,7 +18,7 @@ const ratingStyleScript = ({ theme }: RatingProps) => {
 			...custom.styles.indicator(custom.colors.controlBorder),
 		},
 		'.ss__rating__count, .ss__rating__text': {
-			color: custom.colors.gray03,
+			color: custom.colors.gray04,
 		},
 	});
 };

@@ -32,7 +32,7 @@ const tabSelectionStyleScript = ({ theme }: TabSelectionProps) => {
 				marginLeft: '5px',
 				fontSize: '12px',
 				fontWeight: 'normal',
-				color: custom.colors.gray03,
+				color: custom.colors.gray04,
 			},
 		},
 	});

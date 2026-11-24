@@ -3,17 +3,35 @@ import { autocompleteFixedThemeComponentProps } from '../../../themeComponents/a
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 import { autocompleteSeeMoreStyles, autocompleteSharedStyles } from './autocompleteShared';
-import { AutocompleteFixedProps, AutocompleteFixedTemplatesLegalProps } from '../../../../components/Templates/AutocompleteFixed';
+import type {
+	AutocompleteFixedProps,
+	AutocompleteFixedStyleProps,
+	AutocompleteFixedTemplatesLegalProps,
+} from '../../../../components/Templates/AutocompleteFixed';
 
 // CSS in JS style script for the Search component
-const autocompleteFixedStyleScript = ({ width, theme }: AutocompleteFixedProps) => {
+const autocompleteFixedStyleScript = ({
+	width,
+	theme,
+	inputBounds,
+}: AutocompleteFixedProps & { inputBounds?: AutocompleteFixedStyleProps['inputBounds'] }) => {
+	// a px width grows left from the input's right edge, shifted right as far as it needs to stay 10px inside the
+	// page - an input near the page's left edge would otherwise push the panel off it
+	const panelWidth = width?.endsWith('px') ? parseFloat(width) : undefined;
+	const panelLeft =
+		panelWidth === undefined || !inputBounds
+			? undefined
+			: Math.max(10, Math.min(inputBounds.left + inputBounds.width, document.documentElement.clientWidth - 10) - panelWidth) - inputBounds.left;
+
 	return css({
 		...autocompleteSharedStyles,
 		...autocompleteSeeMoreStyles(custom.utils.activeColors(theme?.variables?.colors?.primary || custom.colors.black)),
 		// the panel's corners are concentric with the 20px cards inset 10px inside it
 		'.ss__autocomplete-fixed__inner .ss__autocomplete': {
 			borderRadius: '30px',
-			overflow: 'hidden',
+			// clip the content to the corners, and still scroll it when `viewportMaxHeight` caps the panel's height
+			overflowX: 'hidden',
+			overflowY: 'auto',
 			// the same shadow as the open sort by and facet dropdowns, lifting the panel off the page
 			boxShadow: '0 6px 12px 1px #0000001f',
 		},
@@ -22,7 +40,7 @@ const autocompleteFixedStyleScript = ({ width, theme }: AutocompleteFixedProps) 
 			paddingLeft: 0,
 			paddingRight: 0,
 		},
-		// the panel takes the theme width instead of the store input's, growing left from the input's right edge
+		// the panel takes the theme width instead of the store input's
 		...(width && width !== 'auto'
 			? {
 					'.ss__autocomplete-fixed__inner__layout-wrapper': {
@@ -30,8 +48,7 @@ const autocompleteFixedStyleScript = ({ width, theme }: AutocompleteFixedProps) 
 						'.ss__autocomplete': {
 							width,
 							maxWidth: 'calc(100vw - 20px)',
-							left: 'auto',
-							right: 0,
+							...(panelLeft === undefined ? { left: 'auto', right: 0 } : { left: `${panelLeft}px`, right: 'auto' }),
 						},
 					},
 			  }

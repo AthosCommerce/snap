@@ -104,7 +104,7 @@ export const bundleListRowSharedStyles = (prefix: string, theme?: Theme): CSSObj
 					fontWeight: 'bold',
 				},
 				[`.${prefix}__wrapper__cta__subtotal__strike`]: {
-					color: custom.colors.gray03,
+					color: custom.colors.gray04,
 				},
 			},
 		},

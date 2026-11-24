@@ -67,8 +67,16 @@ export const autocompleteSharedStyles: CSSObject = {
 		margin: 0,
 	},
 	'& .ss__dropdown.ss__facet__dropdown': {
-		padding: '10px 15px',
 		borderRadius: '20px',
+		'.ss__dropdown__button': {
+			padding: '10px 15px',
+		},
+		'&.ss__dropdown--open .ss__dropdown__button': {
+			paddingBottom: 0,
+		},
+		'.ss__dropdown__content': {
+			padding: '0 15px 10px',
+		},
 	},
 	// half the component's facet header/options gap (out-specify the facet's own styles)
 	'& .ss__facet .ss__facet__header': {
@@ -101,7 +109,7 @@ export const autocompleteSharedStyles: CSSObject = {
 			},
 			'&:not(:first-of-type)': {
 				marginTop: '4px',
-				color: custom.colors.gray03,
+				color: custom.colors.gray04,
 			},
 		},
 	},

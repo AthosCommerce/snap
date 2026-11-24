@@ -77,7 +77,7 @@ const recommendationBundleListStyleScript = ({ theme }: RecommendationBundleList
 					fontWeight: 'bold',
 				},
 				[`${prefix}__wrapper__cta__subtotal__strike`]: {
-					color: custom.colors.gray03,
+					color: custom.colors.gray04,
 				},
 				[`${prefix}__wrapper__cta__subtotal__icon__wrapper`]: {
 					display: 'none',

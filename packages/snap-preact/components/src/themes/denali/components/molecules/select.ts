@@ -4,12 +4,21 @@ import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
 // CSS in JS style script for the Select component
-const selectStyleScript = ({ backgroundColor, theme }: SelectProps) => {
+const selectStyleScript = ({ backgroundColor, borderColor, color, iconColor, theme }: SelectProps) => {
 	const variables = theme?.variables;
 	const fill = backgroundColor || custom.colors.gray01;
+	// a passed background brings its contrast text - and tints the chevron, unless it is too light to show on the
+	// white disc, where the chevron takes that contrast color instead
+	const [passedFill, passedText] = custom.utils.activeColors(backgroundColor || custom.colors.gray01);
+	const chevron =
+		iconColor || color || (backgroundColor ? (passedText === custom.colors.white ? passedFill : passedText) : variables?.colors?.secondary);
 	// hovered and selected rows tint a passed background - on the theme's gray they are a darker gray and white
 	const hoverFill = backgroundColor ? custom.utils.rowTint(backgroundColor) : custom.colors.gray02;
 	const selectedFill = backgroundColor ? custom.utils.rowTint(backgroundColor) : custom.colors.white;
+	// a passed border outlines the pill and its open card at the buttons' 2px weight - the pill's padding gives up
+	// the border's width, so it stays the same size
+	const border = borderColor ? `2px solid ${borderColor}` : 'none';
+	const inset = borderColor ? 2 : 0;
 
 	return css({
 		'.ss__button__content': {
@@ -17,10 +26,12 @@ const selectStyleScript = ({ backgroundColor, theme }: SelectProps) => {
 		},
 		// a filled pill with its chevron in a white disc
 		'.ss__dropdown': {
+			// the pill and its open list share the fill - and its text
+			color: color || (backgroundColor ? passedText : undefined),
 			'.ss__select__dropdown__button': {
-				border: 'none',
+				border,
 				borderRadius: '25px',
-				padding: '10px 12px 10px 15px',
+				padding: `${10 - inset}px ${12 - inset}px ${10 - inset}px ${15 - inset}px`,
 				boxShadow: 'none',
 				background: fill,
 				color: 'inherit',
@@ -35,8 +46,7 @@ const selectStyleScript = ({ backgroundColor, theme }: SelectProps) => {
 					borderRadius: '50%',
 					marginLeft: '15px',
 					transition: 'transform 0.25s ease 0s',
-					// on a passed background the chevron takes that color, so it shows on the white disc
-					...custom.styles.indicator(backgroundColor || variables?.colors?.secondary),
+					...custom.styles.indicator(chevron),
 				},
 			},
 			// the open list is one rounded card behind the pill, with inset rows - it floats over what is beneath
@@ -59,6 +69,7 @@ const selectStyleScript = ({ backgroundColor, theme }: SelectProps) => {
 				},
 				'.ss__dropdown__content': {
 					backgroundColor: fill,
+					border,
 					borderRadius: '20px',
 					boxShadow: '0 6px 12px 1px #0000001f',
 					padding: '44px 8px 8px',
