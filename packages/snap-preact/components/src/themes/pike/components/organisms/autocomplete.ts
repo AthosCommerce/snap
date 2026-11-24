@@ -87,6 +87,10 @@ const autocompleteStyleScript = (props: AutocompleteProps) => {
 			},
 			'.ss__autocomplete__terms': {
 				backgroundColor: 'transparent',
+				// the untyped part of each suggestion is a highlight - trending and history terms have nothing typed to complete
+				'.ss__autocomplete__terms__suggestions .ss__autocomplete__terms__option:not(.ss__autocomplete__terms__option--active) a em': {
+					color: variables?.colors?.accent,
+				},
 				'& > div': {
 					'.ss__autocomplete__title': {
 						padding: 0,
@@ -180,7 +184,7 @@ const autocompleteStyleScript = (props: AutocompleteProps) => {
 						margin: 0,
 					},
 					'.ss__icon': {
-						...custom.styles.indicator(variables?.colors?.accent),
+						...custom.styles.indicator(variables?.colors?.secondary),
 						position: 'absolute',
 						top: 0,
 						bottom: 0,

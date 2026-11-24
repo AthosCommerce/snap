@@ -21,7 +21,7 @@ const noResultsStyleScript = (props: NoResultsProps) => {
 				...custom.styles.baseText(),
 			},
 			a: {
-				color: variables?.colors?.primary,
+				color: variables?.colors?.secondary,
 			},
 			ul: {
 				padding: 0,

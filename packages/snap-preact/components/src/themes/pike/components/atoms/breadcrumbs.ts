@@ -34,7 +34,7 @@ const breadcrumbsStyleScript = (props: BreadcrumbsProps) => {
 				},
 			},
 			'.ss__breadcrumbs__separator__icon': {
-				...custom.styles.indicator(variables?.colors?.accent),
+				...custom.styles.indicator(variables?.colors?.secondary),
 			},
 		},
 	});

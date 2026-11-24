@@ -28,7 +28,7 @@ const termsStyleScript = (props: TermsProps) => {
 				margin: 0,
 			},
 			'.ss__terms__option': {
-				// plain text - only the active term takes the primary (active text) color
+				// plain text - only the active term takes the primary (active text) color, and the untyped part of a suggestion the accent
 				'&, a': {
 					color: 'inherit',
 				},
@@ -46,6 +46,10 @@ const termsStyleScript = (props: TermsProps) => {
 					...custom.styles.activeText(variables?.colors?.primary),
 				},
 			},
+		},
+		// the untyped part of each autocomplete suggestion is a highlight - popular and recent terms have nothing typed to complete
+		'&.ss__terms-list__terms--suggestions .ss__terms__options .ss__terms__option:not(.ss__terms__option--active) a em': {
+			color: variables?.colors?.accent,
 		},
 		[`${custom.utils.getBp(desktopBp)}`]: {
 			'.ss__terms__title h5, .ss__terms__options .ss__terms__option a': {

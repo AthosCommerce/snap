@@ -47,7 +47,7 @@ const selectStyleScript = (props: SelectProps) => {
 								fontWeight: 'normal',
 							},
 							[dropdownIcon]: {
-								...custom.styles.indicator(variables?.colors?.accent),
+								...custom.styles.indicator(variables?.colors?.secondary),
 								transition: 'transform ease 0.5s',
 								marginLeft: 'auto',
 							},

@@ -100,8 +100,8 @@ const carouselStyleScript = (props: CarouselProps) => {
 					...custom.styles.borderRadius(0),
 				},
 				'.swiper-pagination-bullet-active': {
-					backgroundColor: variables?.colors?.accent,
-					borderColor: variables?.colors?.accent,
+					backgroundColor: variables?.colors?.primary,
+					borderColor: variables?.colors?.primary,
 				},
 			},
 			'& > .swiper-scrollbar': {
@@ -125,7 +125,7 @@ const carouselStyleScript = (props: CarouselProps) => {
 				},
 				'.swiper-scrollbar-drag': {
 					zIndex: 2,
-					backgroundColor: variables?.colors?.accent,
+					backgroundColor: variables?.colors?.primary,
 				},
 			},
 		},

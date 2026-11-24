@@ -8,7 +8,7 @@ const layoutSelectorStyleScript = (props: LayoutSelectorProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
 
-	const activeColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary);
+	const activeColors = custom.utils.activeColors(variables?.colors?.primary || custom.colors.primary);
 	const activeColor = activeColors[0];
 	const activeIconColor = activeColors[1];
 

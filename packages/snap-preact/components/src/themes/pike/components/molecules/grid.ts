@@ -16,7 +16,7 @@ const gridStyleScript = (props: Partial<GridProps>) => {
 	const variables = props?.theme?.variables;
 	const columns = props?.columns ? props.columns : 4;
 
-	const activeColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary);
+	const activeColors = custom.utils.activeColors(variables?.colors?.primary || custom.colors.primary);
 	const activeColor = activeColors[0];
 	const fontColor = activeColors[1];
 
@@ -192,7 +192,8 @@ const gridStyleScript = (props: Partial<GridProps>) => {
 				cursor: 'pointer',
 			},
 			'.ss__grid__show-more, .ss__grid__show-less': {
-				...custom.styles.activeText(variables?.colors?.primary),
+				// a text action, like the facets' show more
+				...custom.styles.activeText(variables?.colors?.secondary),
 			},
 		},
 	});

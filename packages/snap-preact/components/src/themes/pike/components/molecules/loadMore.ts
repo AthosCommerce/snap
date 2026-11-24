@@ -29,7 +29,7 @@ const loadMoreStyleScript = (props: LoadMoreProps) => {
 					'.ss__load-more__progress__indicator__bar': {
 						margin: '-1px',
 						// a progress indicator (the component colors it primary)
-						backgroundColor: props?.color || variables?.colors?.accent,
+						backgroundColor: props?.color || variables?.colors?.primary,
 					},
 				},
 				'.ss__load-more__progress__text': {

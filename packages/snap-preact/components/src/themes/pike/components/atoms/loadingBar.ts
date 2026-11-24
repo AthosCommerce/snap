@@ -11,7 +11,7 @@ const loadingBarStyleScript = (props: LoadingBarProps) => {
 	// loading bar styles - a progress indicator on a neutral track (the component colors the bar primary)
 	const loadingBarStyles = css({
 		'.ss__loading-bar__bar': {
-			backgroundColor: props?.color || variables?.colors?.accent,
+			backgroundColor: props?.color || variables?.colors?.primary,
 		},
 	});
 

@@ -233,7 +233,7 @@ export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, te
 				margin: 0,
 			},
 			'.ss__icon': {
-				...custom.styles.indicator(variables?.colors?.accent),
+				...custom.styles.indicator(variables?.colors?.secondary),
 			},
 		},
 	});

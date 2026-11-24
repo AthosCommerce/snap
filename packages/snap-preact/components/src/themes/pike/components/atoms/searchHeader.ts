@@ -25,11 +25,11 @@ const searchHeaderStyleScript = (props: SearchHeaderProps) => {
 			fontSize: '16px',
 			fontWeight: 400,
 			a: {
-				color: variables?.colors?.primary,
+				color: variables?.colors?.secondary,
 			},
 		},
-		'.ss__search-header__results-query': {
-			color: variables?.colors?.primary,
+		'.ss__search-header__results-query, .ss__search-header__subtitle em': {
+			color: variables?.colors?.accent,
 		},
 	});
 
