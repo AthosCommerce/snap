@@ -671,12 +671,12 @@ export class AutocompleteController extends AbstractController {
 					this.store.history?.length && this.config.settings?.history?.enabled && this.config.settings?.history?.showResults;
 
 				this.handlers.input.timeoutDelay = setTimeout(() => {
+					// reset the URL first - a preview can already be on the next query, which would otherwise look unchanged and never search
+					this.urlManager.reset().go();
+
 					if (!value) {
 						// there is no input value - reset state of store
 						this.store.reset();
-
-						// reset the URL with the store - otherwise previewing a term for the current query looks unchanged and never searches
-						this.urlManager.reset().go();
 
 						// show results for trending or history (if configured) - trending has priority
 						if (trendingResultsEnabled) {
