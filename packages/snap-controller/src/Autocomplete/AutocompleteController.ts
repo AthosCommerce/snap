@@ -671,6 +671,9 @@ export class AutocompleteController extends AbstractController {
 					this.store.history?.length && this.config.settings?.history?.enabled && this.config.settings?.history?.showResults;
 
 				this.handlers.input.timeoutDelay = setTimeout(() => {
+					// reset the URL first - a preview can already be on the next query, which would otherwise look unchanged and never search
+					this.urlManager.reset().go();
+
 					if (!value) {
 						// there is no input value - reset state of store
 						this.store.reset();
@@ -680,9 +683,6 @@ export class AutocompleteController extends AbstractController {
 							this.store.trending[0].preview();
 						} else if (historyResultsEnabled) {
 							this.store.history[0].preview();
-						} else {
-							// no input - need to reset URL
-							this.urlManager.reset().go();
 						}
 					} else {
 						// new query in the input - trigger a new search via UrlManager
