@@ -625,7 +625,9 @@ export class AutocompleteController extends AbstractController {
 						return elem != searchInput;
 					});
 
-					// set parameters as globals
+					// set parameters as globals - typed queries search with the controller's urlManager, which `withGlobals` updates in place
+					// (it must not be replaced: search runs on its url subscription, before a replacement would refresh)
+					this.urlManager.withGlobals(formParameters);
 					this.store.setService('urlManager', this.store.services.urlManager.reset().withGlobals(formParameters));
 					this.store.reset();
 
@@ -771,8 +773,10 @@ export class AutocompleteController extends AbstractController {
 						return elem != input;
 					});
 
-					// set parameters as globals
-					this.store.setService('urlManager', this.urlManager.reset().withGlobals(formParameters));
+					// set parameters as globals - typed queries search with the controller's urlManager, which `withGlobals` updates in place
+					// (it must not be replaced: search runs on its url subscription, before a replacement would refresh)
+					this.urlManager.withGlobals(formParameters);
+					this.store.setService('urlManager', this.urlManager.reset());
 				}
 			} else if (this.config.settings?.bind?.submit) {
 				this.log.warn(

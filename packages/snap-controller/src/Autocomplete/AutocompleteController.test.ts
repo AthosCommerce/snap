@@ -526,6 +526,60 @@ describe('Autocomplete Controller', () => {
 		expect(controller.store.state.url.href).toBe('http://localhost/search.html?view=shop&search_query=white');
 	});
 
+	it('includes serialized form parameters in typed query requests (settings.serializeForm)', async () => {
+		document.body.innerHTML =
+			'<div><form action="/search.html"><input type="hidden" name="tag" value="test-global"/><input type="text" id="search_query"/></form></div>';
+
+		const serializeConfig = {
+			...acConfig,
+			settings: {
+				serializeForm: true,
+			},
+		};
+		const detachedUrlManager = urlManager.detach(true);
+
+		const controller = new AutocompleteController(serializeConfig, {
+			client: new MockClient(globals, {}),
+			store: new AutocompleteStore(serializeConfig, { urlManager: detachedUrlManager }),
+			urlManager: detachedUrlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		(controller.client as MockClient).mockData.updateConfig({ autocomplete: 'autocomplete.query.wh' });
+		const autocompletefn = jest.spyOn(controller.client, 'autocomplete');
+
+		await controller.bind();
+
+		const inputElem = document.getElementById('search_query') as HTMLInputElement;
+		inputElem.value = 'wh';
+		inputElem.dispatchEvent(new Event('input'));
+
+		await waitFor(() => {
+			expect(autocompletefn).toHaveBeenCalledTimes(1);
+		});
+
+		expect(autocompletefn.mock.calls[0][0]?.search?.query?.string).toBe('wh');
+		expect(autocompletefn.mock.calls[0][0]?.merchandising?.landingPage).toEqual(['test-global']);
+
+		// a changed form parameter is picked up by the next typed query
+		const tagElem = document.querySelector('input[name="tag"]') as HTMLInputElement;
+		tagElem.value = 'changed-global';
+		tagElem.dispatchEvent(new Event('change'));
+
+		inputElem.value = 'whi';
+		inputElem.dispatchEvent(new Event('input'));
+
+		await waitFor(() => {
+			expect(autocompletefn).toHaveBeenCalledTimes(2);
+		});
+
+		expect(autocompletefn.mock.calls[1][0]?.search?.query?.string).toBe('whi');
+		expect(autocompletefn.mock.calls[1][0]?.merchandising?.landingPage).toEqual(['changed-global']);
+	});
+
 	it('can set personalization cart param', async () => {
 		const controller = new AutocompleteController(acConfig, {
 			client: new MockClient(globals, {}),
