@@ -675,14 +675,14 @@ export class AutocompleteController extends AbstractController {
 						// there is no input value - reset state of store
 						this.store.reset();
 
+						// reset the URL with the store - otherwise previewing a term for the current query looks unchanged and never searches
+						this.urlManager.reset().go();
+
 						// show results for trending or history (if configured) - trending has priority
 						if (trendingResultsEnabled) {
 							this.store.trending[0].preview();
 						} else if (historyResultsEnabled) {
 							this.store.history[0].preview();
-						} else {
-							// no input - need to reset URL
-							this.urlManager.reset().go();
 						}
 					} else {
 						// new query in the input - trigger a new search via UrlManager

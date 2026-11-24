@@ -1942,6 +1942,52 @@ describe('Autocomplete Controller', () => {
 		searchTrendingfn.mockClear();
 		trendingfn.mockClear();
 	});
+
+	it('searches again when clearing the input previews a trending term for the current query', async () => {
+		const trendingConfig = deepmerge(acConfig, { settings: { trending: { limit: 5, showResults: true } } });
+		// detached like Snap creates it - earlier tests replace window.location, so a URL-backed manager can't follow query changes
+		const detachedServices = { urlManager: urlManager.detach(true) };
+		const controller = new AutocompleteController(trendingConfig, {
+			client: new MockClient(globals, {}),
+			store: new AutocompleteStore(trendingConfig, detachedServices),
+			urlManager: detachedServices.urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		(controller.client as MockClient).mockData.updateConfig({ autocomplete: 'default', siteId: '8uyt2m' });
+
+		await controller.bind();
+		await waitFor(() => {
+			expect(controller.store.trending[0].value).toBe('dress');
+		});
+
+		// search for the same query as the first trending term
+		const inputEl: HTMLInputElement | null = document.querySelector(controller.config.selector);
+		inputEl!.value = 'dress';
+		inputEl!.dispatchEvent(new Event('input'));
+
+		await waitFor(() => {
+			expect(controller.urlManager.state.query).toBe('dress');
+			expect(controller.store.loaded).toBe(true);
+			expect(controller.store.loading).toBe(false);
+		});
+		const resultCount = controller.store.results.length;
+		expect(resultCount).toBeGreaterThan(0);
+
+		// clearing the input resets the store and previews 'dress' - which must search again to restore the results
+		inputEl!.value = '';
+		inputEl!.dispatchEvent(new Event('input'));
+
+		await waitFor(() => {
+			expect(controller.store.trending[0].active).toBe(true);
+			expect(controller.store.loading).toBe(false);
+			expect(controller.store.results.length).toBe(resultCount);
+		});
+		expect(controller.urlManager.state.query).toBe('dress');
+	});
 });
 
 describe('Autocomplete Controller quickview', () => {
