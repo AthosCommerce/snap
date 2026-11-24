@@ -84,7 +84,7 @@ controller.log.imageText({
 
 ## `profile` method
 
-This method takes any number of parameters and logs them to the console. The first parameter is special and takes a [Snap profile](https://athoscommerce.github.io/snap/reference-profiler). If mode is set to `LogMode.PRODUCTION`, `profile` logs will not be displayed.
+This method takes any number of parameters and logs them to the console. The first parameter is special and takes a [Snap profile](https://github.com/athoscommerce/snap/blob/main/packages/snap-profiler/README.md). If mode is set to `LogMode.PRODUCTION`, `profile` logs will not be displayed.
 ```js
 const searchProfile = controller.profiler.create({ 
 	type: 'event', 

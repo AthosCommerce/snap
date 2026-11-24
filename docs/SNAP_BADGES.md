@@ -1,5 +1,8 @@
 # Badges
 
+> [!NOTE]
+> This page covers standard Snap integrations. For Snap Templates, see [Badges](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_BADGES.md) under Templates Integration.
+
 Badges are self-configured in the Athos Search & Product Discovery Console. 
 
 > [!NOTE]
@@ -36,4 +39,4 @@ The default badges available:
 - [BadgeRectangle](https://athoscommerce.github.io/snap/preact-components?params=%3Fpath%3D%2Fstory%2Fatoms-badgerectangle--default)
 - [BadgeImage](https://athoscommerce.github.io/snap/preact-components?params=%3Fpath%3D%2Fstory%2Fatoms-badgeimage--default)
 
-Additional custom badge components can be created and synced to the Athos Search & Product Discovery Console using the Snapfu CLI. See [Custom Badge Templates reference](https://athoscommerce.github.io/snap/reference-custom-badge-templates)
+Additional custom badge components can be created and synced to the Athos Search & Product Discovery Console using the Snapfu CLI. See [Custom Badge Templates reference](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CUSTOM_BADGE_TEMPLATES.md)

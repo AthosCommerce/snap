@@ -1,5 +1,8 @@
 # Variants
 
+> [!NOTE]
+> This page covers standard Snap integrations. For Snap Templates, see [Variants](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_VARIANTS.md) under Templates Integration.
+
 Product variants allow you to represent different versions of the same base product - such as different sizes, colors, styles or other attributes that distinguish product options. This helps to improve the shopping experience by making product options easily discoverable, and allow customers to switch between variants directly from search/category pages. Common examples include:
 
 - Clothing items available in multiple sizes and colors

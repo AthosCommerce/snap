@@ -1,14 +1,20 @@
 # Autocomplete
 
-To set up Autocomplete using Snap, we'll need to define an autocomplete controller in our Snap configuration. See [AutocompleteController reference](https://athoscommerce.github.io/snap/reference-controller-autocomplete) for all available configuration options
+>[!IMPORTANT]
+> If you have not yet initialized your Snap project, follow the steps in the [Setup guide](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SETUP.md) before continuing with Feature controllers.
 
-One notable thing to mention as you may see a duplicate `selector` property in both the `config` and `targeter`.
+## Autocomplete Controller
+To set up Autocomplete using Snap, we'll need to define an autocomplete controller in our Snap configuration. 
 
-The `config.selector` specifies the `<input/>` element(s) to attach events (focus, keydown, submit) to that respond to Autocomplete actions. This supports a selector that targets many elements. 
+>[!TIP]
+> See [AutocompleteController reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-controller/src/Autocomplete/README.md) for all available configuration options
 
-The `targeter.selector` specifies the DOM node where the `targeter.component` will be rendered into.
+When setting up your Autocomplete Controller you'll notice a duplicate **`selector`** property between `config` and `targeters` — each one controls something different:
 
-However in our example, since they are both the same value, the Autocomplete component will be rendered as a child DOM node below the `<input/>` element that is currently focused. 
+- **`config.selector`** — the `<input/>` element(s) to attach Autocomplete's events (focus, keydown, submit) to. Supports a selector matching multiple elements.
+- **`targeter.selector`** — the element(s) after which Snap injects a container (`.ss__autocomplete--target`) that the `targeter.component` renders into, one per matched element.
+
+In the example below, both use the same selector, so the Autocomplete component renders in a container directly after each `<input/>`.
 
 
 ```js
@@ -17,90 +23,165 @@ However in our example, since they are both the same value, the Autocomplete com
 import { Snap } from '@athoscommerce/snap-preact';
 
 const snap = new Snap({
-    client: {
+	client: {
 		globals: {
 			siteId: 'REPLACE_WITH_YOUR_SITE_ID',
 		},
 	},
-    controllers: {
-        autocomplete: [
-            {
-                config: {
-                    id: 'autocomplete',
-                    selector: 'header input[type="search"]',
-                    settings: {
-                        trending: {
-                            limit: 5,
-                        },
-                        history: {
-                            limit: 5,
-                        },
-                    },
-                },
-                targeters: [
-                    {
-                        selector: 'header input[type="search"]',
-                        hideTarget: true,
-                        component: async () => {
-                            return (await import('@athoscommerce/snap-preact/components')).Autocomplete;
-                        },
-                    },
-                ],
-            },
-        ],
-    },
+	controllers: {
+		autocomplete: [
+			{
+				config: {
+					id: 'autocomplete',
+					selector: 'header input[type="search"]', // <input> to attach Autocomplete's events to
+					settings: {
+						trending: {
+							limit: 5,
+						},
+						history: {
+							limit: 5,
+						},
+					},
+				},
+				targeters: [
+					{
+						selector: 'header input[type="search"]', // element(s) after which Snap injects the `.ss__autocomplete--target` container the component renders into
+						hideTarget: true, // hides the matched element until it has been targeted
+						component: async () => {
+							return (await import('@athoscommerce/snap-preact/components')).Autocomplete;
+						},
+					},
+				],
+			},
+		],
+	},
 });
 ```
 
-
+---
 
 ## Autocomplete Store
 
-It is recommended to utilizing the [Autocomplete](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/organisms-autocomplete--default) component from `@athoscommerce/snap-preact/components` to display Autocomplete.
+The following properties are specific to an Autocomplete Store via an Autocomplete Controller. This section will start with what's unique to Autocomplete, then cover the properties shared with `SearchController`.
 
-The following properties are specific to an Autocomplete Store via an Autocomplete Controller.
+>[!TIP]
+>Each section below covers what you need to build a component. For every property and method, see the [AutocompleteStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Autocomplete/README.md).
 
-### AutocompleteController.store.merchandising
+>[!NOTE]
+> If you are using Snap Components in your integration we recommend utilizing the [Autocomplete](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/organisms-autocomplete--default) component from `@athoscommerce/snap-preact/components` to display Autocomplete.
 
-See `SearchController.store.merchandising` section above.
-
-### AutocompleteController.store.search
-
-The `search` property contains information about the current query. However unlike SearchController.store.search, AutocompleteController.store.search does not contain a `didYouMean` query. 
-
-
-### AutocompleteController.store.facets
-
-See `SearchController.store.facets` section above.
-
-In addition, each facet value will contain a `preview` method that should be invoked on the `onFocus` event of a facet value. This method will lock the current facets such that when the store is updated with the filtered results, the original facets do not get replaced with the new facets from the filtered query. 
-
-### AutocompleteController.store.filters
-
-See `SearchController.store.filters` section above.
-
-### AutocompleteController.store.results
-
-See `SearchController.store.results` section above.
 
 ### AutocompleteController.store.terms
 
-The `terms` property contains an array of autocomplete terms that are relevant to the query. Each term contains a `preview` method that should be invoked on the `onFocus` event of a term value. This method will lock the current terms and unlock the previous facets (if changing terms with a facet filter applied) such that when the store is updated with the results for the new term, the original terms do not change.
+The `terms` property contains an array of autocomplete terms relevant to the query. Each term has a `preview` method, invoked on the `onFocus` event of a term value — this locks the current terms and unlocks the previous facets (if changing terms with a facet filter applied), so the store update for the new term doesn't change the original terms.
+
+<img src="https://github.com/athoscommerce/snap/blob/main/images/autocomplete-term-preview.gif?raw=true" alt="Hovering suggested terms in autocomplete updates the previewed results" />
+
+```tsx
+// src/components/Terms/Terms.jsx
+
+import { h } from 'preact';
+import { observer } from 'mobx-react-lite';
+
+export const Terms = observer((props) => {
+	const { terms } = props;
+
+	return terms.length !== 0 ? (
+		<ul class="ss__terms">
+			{terms.map((term) => (
+				<li key={term.value} class={`ss__terms__term ${term.active ? 'ss__terms__term--active' : ''}`}>
+					<a href={term.url.href} onFocus={term.preview}>
+						{term.value}
+					</a>
+				</li>
+			))}
+		</ul>
+	) : null;
+});
+```
+
+>[!TIP]
+>`trending` and `history` (below) are arrays of this same `Term` shape — `Terms` takes `terms` as a prop, so the same component renders all three, just passed a different store property.
 
 ### AutocompleteController.store.trending
 
-The `trending` property contains an array of trending `terms`. Trending terms are not relevant to the current query and are generated from collected reporting data. It is recommended to display trending terms as a starting point when the `<input/>` is focused and does not yet contain a value. Trending terms must be enabled via settings in the AutocompleteController config.
+The `trending` property contains an array of trending terms — generated from collected reporting data rather than the current query. It's recommended as a starting point shown when the `<input/>` is focused and empty. Must be enabled by setting **`settings.trending.limit`** to a positive number in the AutocompleteController config.
 
-
-### AutocompleteController.store.pagination
-
-See `SearchController.store.pagination` section above.
-
-### AutocompleteController.store.sorting
-
-See `SearchController.store.sorting` section above.
+<img src="https://github.com/athoscommerce/snap/blob/main/images/autocomplete-trending-preview.gif?raw=true" alt="Trending terms shown when the search input is focused and empty" />
 
 ### AutocompleteController.store.history
 
-The `history` property contains an array of previously searched `terms`. Historical terms are not relevant to the current query and are stored in localstorage. Historical terms can be displayed in the Autocomplete component in place of or in addition to trending and suggested terms. Historical terms must be enabled via settings in the AutocompleteController config.
+The `history` property contains an array of previously searched terms, stored in localStorage. Can be shown in place of, or alongside, trending and suggested terms. Must be enabled by setting **`settings.history.limit`** to a positive number in the AutocompleteController config.
+
+<img src="https://github.com/athoscommerce/snap/blob/main/images/autocomplete-history-preview.gif?raw=true" alt="Previously searched terms shown in autocomplete" />
+
+---
+
+The remaining properties are shared with `SearchController`. These are identical, so see [Search](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md) for their descriptions and worked examples:
+
+- [`merchandising`](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md#searchcontrollerstoremerchandising)
+- [`filters`](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md#searchcontrollerstorefilters)
+- [`results`](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md#searchcontrollerstoreresults)
+- [`pagination`](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md#searchcontrollerstorepagination)
+- [`sorting`](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md#searchcontrollerstoresorting)
+
+`search` and `facets` differ slightly:
+
+### AutocompleteController.store.search
+
+Same shape as `SearchController.store.search`, except that it does not contain a `didYouMean` query and adds a `correctedQuery`.
+
+### AutocompleteController.store.facets
+
+Same shape as `SearchController.store.facets`, with one addition: each facet value also has a `preview` method — invoked on `onFocus`, it marks the value as filtered and locks the facets (so they don't change while the shopper previews other values). Unlike `terms.preview`, it does not lock or change the terms.
+
+## Putting It Together
+
+With `terms`, `trending`, `history`, and `results` each wired in, the root `Autocomplete` component composes them: suggested terms once the shopper is typing, trending/history as a starting point when the input is empty, and a preview of live results underneath.
+
+```tsx
+// src/components/Autocomplete/Autocomplete.jsx
+
+import { h } from 'preact';
+import { observer } from 'mobx-react-lite';
+import { ControllerProvider, withController } from '@athoscommerce/snap-preact/components';
+import { Terms } from '../Terms/Terms';
+import { Results } from '../Results/Results';
+
+export const Autocomplete = withController(observer((props) => {
+	const { controller } = props;
+	const { store } = controller;
+	const { search, terms, trending, history, results } = store;
+
+	// trending and history are shown before the first autocomplete response, so don't gate on store.loaded alone
+	return store.loaded || trending.length || history.length ? (
+		<ControllerProvider controller={controller}>
+			<div class="ss__autocomplete">
+				{search?.query?.string
+					? <Terms terms={terms} />
+					: <Terms terms={[...trending, ...history]} />}
+				{results.length !== 0 && <Results />}
+			</div>
+		</ControllerProvider>
+	) : null;
+}));
+```
+
+>[!TIP]
+>`Results` is the same component from the [Search](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md#searchcontrollerstoreresults) page — Autocomplete's `results` property is identical, so it renders without changes.
+
+---
+## Troubleshooting FAQ
+
+**Q: Trending terms never show up, even with an empty, focused input. Why?**
+<br>
+**A:** Confirm `settings.trending.limit` is set to a positive number on the AutocompleteController config — trending terms are opt-in and won't populate `store.trending` without it.
+
+**Q: History / "Recent Searches" never shows up. Why?**
+<br>
+**A:** Confirm `settings.history.limit` is set to a positive number in the config (and `settings.history.enabled` is not `false`), and that a search has actually run at least once in this browser — history is written to localStorage when the search controller runs a query (after its `beforeSearch` middleware passes), not on every keystroke, so a fresh browser with no prior searches will show nothing here. A search controller with `settings.history.max: 0` also clears the stored history.
+
+**Q: Hovering a suggested term doesn't update the results/facets preview. Why?**
+<br>
+**A:** Confirm `term.preview` is wired to the term's `onFocus` event, as shown in the `Terms` example above — without calling `preview()`, the store has no signal to fetch and lock in that term's results.
 

@@ -1,29 +1,14 @@
-function flattenDocumentLinks(docs) {
-	const flattened = [];
-	function traverse(links) {
-		if (!Array.isArray(links)) return;
-		links.forEach((link) => {
-			flattened.push(link);
-			if (link.links && Array.isArray(link.links)) {
-				traverse(link.links);
-			}
-		});
-	}
-	docs.forEach((doc) => {
-		if (doc.links && Array.isArray(doc.links)) {
-			traverse(doc.links);
-		}
-	});
-	return flattened;
-}
-
 marked.use(markedAlert());
 import('./docs/documents.js').then(function (_) {
 	const documents = _.default;
 	const replaces = flattenDocumentLinks(documents)
 		.filter((link) => link.type === 'markdown')
 		.map((link) => {
-			return { a: `(https://athoscommerce.github.io/snap${link.route}`, b: `(.${link.route}` };
+			return [
+				{ a: `(https://athoscommerce.github.io/snap${link.route}`, b: `(.${link.route}` },
+				// prefix entry (no closing paren) so plain and #anchored GitHub links to the page both map
+				{ a: `(https://github.com/athoscommerce/snap/blob/main/${link.url.replace(/^\.\//, '')}`, b: `(.${link.route}` },
+			];
 		})
 		.flat()
 		.concat([
@@ -87,48 +72,83 @@ import('./docs/documents.js').then(function (_) {
 			{ a: '(https://github.com/athoscommerce/snap/tree/main/packages/snap-platforms/magento2)', b: '(./reference-platforms-magento2)' },
 			{ a: '(https://github.com/athoscommerce/snap/tree/main/packages/snap-platforms/bigcommerce)', b: '(./reference-platforms-bigcommerce)' },
 
-			// prefix entries (no closing paren) so both plain and #anchored links map
-			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_THEMING.md', b: '(./templates-theming' },
-			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md', b: '(./templates-config' },
-			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_HOW_TO.md', b: '(./templates-how-tos' },
-			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CONFIG_VALIDATION.md', b: '(./reference-config-validation' },
-			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_TABBED_SEARCH.md', b: '(./reference-tabbed-search' },
-
 			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/INTEGRATION_VARIANTS.md)', b: '(./reference-variants)' },
-			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_ABOUT.md)', b: '(./templates-about)' },
-
-			{ a: '(TEMPLATES_CONFIG.md)', b: '(./templates-config)' },
-			{ a: '(TEMPLATES_LOCALIZATION.md#', b: '(./templates-localization#' },
-			{ a: '(TEMPLATES_HOW_TO.md#', b: '(./templates-how-tos#' },
 		]);
+
+	const systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
+
+	// where this site's own files are served from - same base the router uses (`/snap/` on GitHub Pages, `/` locally)
+	const siteSegment = window.location.hostname !== 'localhost' ? window.location.pathname.split('/')[1] : '';
+	const siteRoot = `${window.location.origin}/${siteSegment ? `${siteSegment}/` : ''}`;
+
+	// images are referenced by their GitHub URL so they also render on GitHub - serve them from this site's
+	// own copy instead, so the docs site shows the images of the checkout it was built from (dev, branch or main)
+	const imageUrl =
+		/https:\/\/(?:github\.com\/athoscommerce\/snap\/(?:blob|raw)\/main|raw\.githubusercontent\.com\/athoscommerce\/snap\/main|athoscommerce\.github\.io\/snap)\/images\/([^"'\s)?]+)(?:\?raw=true)?/gi;
 
 	const modifyLinks = (markdown) => {
 		replaces.forEach(function (replace) {
 			markdown = markdown.replaceAll(replace.a, replace.b);
 		});
-		return markdown;
+		return markdown.replace(imageUrl, (_, path) => `${siteRoot}images/${path}`);
 	};
 	const App = {
 		data() {
 			return {
 				documents,
-				darkMode: localStorage.getItem('darkMode') === 'true',
+				// an explicit choice from the toggle wins, otherwise follow the system setting
+				darkMode: localStorage.getItem('darkMode') !== null ? localStorage.getItem('darkMode') === 'true' : systemDarkMode.matches,
+				latestVersion: null,
+				showVersionModal: false,
+				versionCommandCopied: false,
 			};
 		},
 		mounted() {
-			if (this.darkMode) {
-				document.body.classList.add('dark-mode');
-			}
+			this.applyDarkMode();
+
+			// keep following the system setting until the toggle is used
+			systemDarkMode.addEventListener('change', (e) => {
+				if (localStorage.getItem('darkMode') !== null) return;
+				this.darkMode = e.matches;
+				this.applyDarkMode();
+			});
+
+			fetch('https://registry.npmjs.org/@athoscommerce/snap-preact/latest')
+				.then((response) => response.json())
+				.then((data) => {
+					if (!data?.version) return;
+					this.latestVersion = data.version;
+					if (localStorage.getItem('versionModalDismissed') !== data.version) {
+						setTimeout(() => {
+							this.showVersionModal = true;
+						}, 2000);
+					}
+				})
+				.catch(() => {
+					// silently ignore - banner just won't show if the registry is unreachable
+				});
 		},
 		methods: {
 			toggleDarkMode() {
 				this.darkMode = !this.darkMode;
 				localStorage.setItem('darkMode', this.darkMode);
-				if (this.darkMode) {
-					document.body.classList.add('dark-mode');
-				} else {
-					document.body.classList.remove('dark-mode');
-				}
+				this.applyDarkMode();
+			},
+			applyDarkMode() {
+				document.body.classList.toggle('dark-mode', this.darkMode);
+				window.renderMermaid?.({ redraw: true });
+			},
+			dismissVersionModal() {
+				this.showVersionModal = false;
+				localStorage.setItem('versionModalDismissed', this.latestVersion);
+			},
+			copyVersionCommand() {
+				navigator.clipboard.writeText('npm install @athoscommerce/snap-preact@latest').then(() => {
+					this.versionCommandCopied = true;
+					setTimeout(() => {
+						this.versionCommandCopied = false;
+					}, 1500);
+				});
 			},
 		},
 		computed: {
@@ -160,17 +180,41 @@ import('./docs/documents.js').then(function (_) {
 			},
 		},
 		template: `
-            <Navigation :documents="documents"></Navigation>
+            <div id="version-banner" v-if="latestVersion">
+                <span>
+                    <i class="fas fa-bolt"></i>
+                    Snap is on version {{ latestVersion }} — run <code>npm install @athoscommerce/snap-preact@latest</code> to get the latest updates.
+                </span>
+            </div>
+            <div id="app-body" :class="{ 'has-version-banner': latestVersion }">
+                <Navigation :documents="documents"></Navigation>
 
-			<div id="content-wrapper">
-				<router-view :routes="routes"></router-view>
-			</div>
-			<div class="theme-toggle">
-				<button @click="toggleDarkMode" :title="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
-					<i :class="darkMode ? 'fas fa-sun fa-2x' : 'fas fa-moon fa-2x'"></i>
-				</button>
-			</div>
-            <div id="ac-overlay"></div>
+                <div id="content-wrapper">
+                    <router-view :routes="routes"></router-view>
+                </div>
+                <div class="theme-toggle">
+                    <button @click="toggleDarkMode" :title="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+                        <i :class="darkMode ? 'fas fa-sun fa-2x' : 'fas fa-moon fa-2x'"></i>
+                    </button>
+                </div>
+                <div id="ac-overlay"></div>
+            </div>
+            <div id="version-modal-overlay" v-if="showVersionModal" @click.self="dismissVersionModal">
+                <div id="version-modal">
+                    <button id="version-modal-close" @click="dismissVersionModal" title="Dismiss">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <i class="fas fa-bolt"></i>
+                    <h3>Snap {{ latestVersion }} is available</h3>
+                    <p>Run the following to update to the latest version:</p>
+                    <div class="version-modal-code-wrapper">
+                        <code>npm install @athoscommerce/snap-preact@latest</code>
+                        <button type="button" class="copy-code-button" :class="{ copied: versionCommandCopied }" title="Copy to clipboard" @click="copyVersionCommand">
+                            <i :class="versionCommandCopied ? 'fas fa-check' : 'fas fa-copy'"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
         `,
 	};
 
@@ -181,13 +225,16 @@ import('./docs/documents.js').then(function (_) {
 		template: `
             <div id="content" :class="{ 'markdown': routeData.type === 'markdown' }">
                 <iframe v-if="routeData.type == 'iframe'" :src="routeData.url" id="frame" @load="onLoad"></iframe>
-                <Markdown v-else-if="routeData.type == 'markdown'" :src="routeData.url" />
+                <Markdown v-else-if="routeData.type == 'markdown'" :src="routeData.url" :prev="pagination.prev" :next="pagination.next" />
                 <div id="searchWrapper"></div>
             </div>
         `,
 		computed: {
 			currentRoute() {
 				return this.$route.path;
+			},
+			pagination() {
+				return paginateDocs(documents, this.currentRoute);
 			},
 			routeData() {
 				const params = this.$route.query.params || '';
@@ -239,10 +286,38 @@ import('./docs/documents.js').then(function (_) {
 		},
 	});
 
-	app.component('Markdown', {
-		props: ['src'],
+	app.component('Pagination', {
+		props: ['prev', 'next'],
 		template: `
-            <div id="markdown" v-html="markedHTML"></div>
+            <div id="pagination" v-if="prev || next">
+                <router-link v-if="prev" :to="prev.route" class="pagination-link pagination-prev">
+                    <i class="fas fa-arrow-left"></i>
+                    <span class="pagination-text">
+                        <small>Previous</small>
+                        {{ prev.label }}
+                    </span>
+                </router-link>
+                <span v-else class="pagination-spacer"></span>
+
+                <router-link v-if="next" :to="next.route" class="pagination-link pagination-next">
+                    <span class="pagination-text">
+                        <small>Next</small>
+                        {{ next.label }}
+                    </span>
+                    <i class="fas fa-arrow-right"></i>
+                </router-link>
+                <span v-else class="pagination-spacer"></span>
+            </div>
+        `,
+	});
+
+	app.component('Markdown', {
+		props: ['src', 'prev', 'next'],
+		template: `
+            <div id="markdown">
+                <div v-html="markedHTML"></div>
+                <Pagination :prev="prev" :next="next" />
+            </div>
         `,
 		data() {
 			return {
@@ -376,6 +451,8 @@ import('./docs/documents.js').then(function (_) {
 
 	const routes = [
 		{ path: '/', component: app.component('Content') },
+		// previously misspelled route, kept so existing links still resolve
+		{ path: '/build-deploy-ckecklist', redirect: '/build-deploy-checklist' },
 		{ path: '/:path', component: app.component('Content') },
 		{ path: '/:pathMatch(.*)', component: app.component('Content') },
 	];
@@ -407,6 +484,15 @@ import('./docs/documents.js').then(function (_) {
 		let lastScrolledUp = true;
 		let lastScrollY = window.scrollY;
 		let hashId = window.location.hash.split('#')[1];
+		if (hashId) {
+			// browsers percent-encode non-ASCII characters (eg. emoji) in the URL fragment;
+			// heading ids are plain unicode text, so decode before matching against them
+			try {
+				hashId = decodeURIComponent(hashId);
+			} catch {
+				// malformed percent-encoding - fall back to the raw value
+			}
+		}
 		let preventLegendUpdate = Boolean(hashId); // if there is a hash id, prevent the legend from updating while scrolling
 		if (hashId) {
 			// scroll to heading if it exists in the url
@@ -440,10 +526,95 @@ import('./docs/documents.js').then(function (_) {
 			}
 		}
 
+		// render ```mermaid blocks as diagrams (before highlighting, which would otherwise color them as code)
+		renderMermaid();
+
 		// highlight code blocks
 		document.querySelectorAll('pre code').forEach((block) => {
 			hljs.highlightElement(block);
 		});
+
+		// add copy-to-clipboard buttons to code blocks
+		document.querySelectorAll('#markdown pre').forEach((pre) => {
+			if (pre.querySelector('.copy-code-button')) return;
+
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = 'copy-code-button';
+			button.title = 'Copy to clipboard';
+			button.innerHTML = '<i class="fas fa-copy"></i>';
+
+			button.addEventListener('click', () => {
+				const code = pre.querySelector('code')?.innerText ?? pre.innerText;
+				navigator.clipboard.writeText(code).then(() => {
+					button.innerHTML = '<i class="fas fa-check"></i>';
+					button.classList.add('copied');
+					window.setTimeout(() => {
+						button.innerHTML = '<i class="fas fa-copy"></i>';
+						button.classList.remove('copied');
+					}, 1500);
+				});
+			});
+
+			pre.appendChild(button);
+		});
+
+		// make GFM task-list checkboxes interactive and persist checked state per page
+		const checklistBoxes = document.querySelectorAll('#markdown li input[type="checkbox"]');
+		if (checklistBoxes.length) {
+			const checklistStorageKey = (checkbox) => `checklist:${window.location.pathname}:${checkbox.closest('li').textContent.trim()}`;
+
+			checklistBoxes.forEach((checkbox) => {
+				if (checkbox.dataset.checklistInit) return;
+				checkbox.dataset.checklistInit = 'true';
+				checkbox.disabled = false;
+
+				const item = checkbox.closest('li');
+				checkbox.checked = localStorage.getItem(checklistStorageKey(checkbox)) === 'true';
+				item.classList.toggle('checked', checkbox.checked);
+
+				checkbox.addEventListener('change', () => {
+					localStorage.setItem(checklistStorageKey(checkbox), checkbox.checked);
+					item.classList.toggle('checked', checkbox.checked);
+					updateChecklistProgress();
+				});
+			});
+
+			updateChecklistProgress();
+		}
+
+		function updateChecklistProgress() {
+			const boxes = document.querySelectorAll('#markdown li input[type="checkbox"]');
+			const total = boxes.length;
+			if (!total) return;
+			const checked = document.querySelectorAll('#markdown li input[type="checkbox"]:checked').length;
+
+			let bar = document.getElementById('checklist-progress');
+			if (!bar) {
+				bar = document.createElement('div');
+				bar.id = 'checklist-progress';
+				bar.innerHTML = `
+                    <div class="checklist-progress-track"><div class="checklist-progress-fill"></div></div>
+                    <span class="checklist-progress-text"></span>
+                    <button type="button" class="checklist-reset-button" title="Uncheck all items">
+                        <i class="fas fa-rotate-left"></i> Reset
+                    </button>
+                `;
+				document.querySelector('#markdown h1')?.after(bar);
+
+				bar.querySelector('.checklist-reset-button').addEventListener('click', () => {
+					document.querySelectorAll('#markdown li input[type="checkbox"]').forEach((box) => {
+						localStorage.removeItem(`checklist:${window.location.pathname}:${box.closest('li').textContent.trim()}`);
+						box.checked = false;
+						box.closest('li').classList.remove('checked');
+					});
+					updateChecklistProgress();
+				});
+			}
+
+			bar.querySelector('.checklist-progress-fill').style.width = `${(checked / total) * 100}%`;
+			bar.querySelector('.checklist-progress-text').textContent = `${checked} / ${total} complete`;
+		}
 
 		const handleScroll = debounce(() => {
 			if (window.scrollY > lastScrollY) {
@@ -556,6 +727,30 @@ import('./docs/documents.js').then(function (_) {
 			timeout = setTimeout(later, wait);
 		};
 	}
+
+	// converts `pre > code.language-mermaid` blocks into diagrams, keeping the source so they can be redrawn for a theme change
+	function renderMermaid({ redraw = false } = {}) {
+		if (!window.mermaid) return;
+
+		document.querySelectorAll('#markdown pre > code.language-mermaid').forEach((code) => {
+			const diagram = document.createElement('div');
+			diagram.className = 'mermaid';
+			diagram.dataset.source = code.textContent;
+			diagram.textContent = code.textContent;
+			code.parentElement.replaceWith(diagram);
+		});
+
+		const diagrams = Array.from(document.querySelectorAll('#markdown .mermaid')).filter((diagram) => redraw || !diagram.dataset.processed);
+		if (!diagrams.length) return;
+
+		diagrams.forEach((diagram) => {
+			diagram.removeAttribute('data-processed');
+			diagram.textContent = diagram.dataset.source;
+		});
+		window.mermaid.initialize({ startOnLoad: false, theme: document.body.classList.contains('dark-mode') ? 'dark' : 'default' });
+		window.mermaid.run({ nodes: diagrams }).catch((err) => console.error('mermaid render failed', err));
+	}
+	window.renderMermaid = renderMermaid;
 
 	function createHeadingId(heading) {
 		return heading.id || 'id-' + heading.textContent.toLowerCase().replace(/ /g, '-');

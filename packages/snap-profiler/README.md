@@ -96,4 +96,4 @@ type ProfileTime = {
 
 
 ## Logging profiles
-It is recommended to use the [Snap Logger's `profile`](https://athoscommerce.github.io/snap/reference-logger#profile-method) method to log Snap Profiles as it provides a clean output for easy parsing.
+It is recommended to use the [Snap Logger's `profile`](https://github.com/athoscommerce/snap/blob/main/packages/snap-logger/README.md#profile-method) method to log Snap Profiles as it provides a clean output for easy parsing.

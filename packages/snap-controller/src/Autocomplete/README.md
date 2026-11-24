@@ -174,4 +174,4 @@ controller.on('quickview', async ({ product }, next) => {
 ```
 
 ## Variants
-For variant integration details, see [Variant Integration Docs](https://github.com/athoscommerce/snap/blob/main/docs/INTEGRATION_VARIANTS.md)
+For variant integration details, see [Variant Integration Docs](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_VARIANTS.md)
