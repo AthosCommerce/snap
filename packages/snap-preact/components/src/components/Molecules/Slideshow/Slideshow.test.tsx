@@ -228,6 +228,75 @@ describe('Slideshow Component', () => {
 			// Should have triggered navigation (test that click works)
 			expect(nextButton).toBeInTheDocument();
 		});
+		it('shows a not-allowed cursor on a disabled navigation button', () => {
+			const args: SlideshowProps = {
+				...defaultProps,
+				slides: mockImages,
+				slidesToShow: 2,
+				showNavigation: true,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+
+			// Button renders a div, so the disabled state is a class rather than `:disabled`
+			const prevButton = rendered.container.querySelector('.ss__slideshow__navigation--prev .ss__button')!;
+			const nextButton = rendered.container.querySelector('.ss__slideshow__navigation--next .ss__button')!;
+			expect(prevButton).toHaveClass('ss__button--disabled');
+			expect(prevButton).toHaveStyle({ cursor: 'not-allowed' });
+			expect(nextButton).not.toHaveClass('ss__button--disabled');
+			expect(nextButton).toHaveStyle({ cursor: 'pointer' });
+		});
+	});
+
+	describe('Fixed Slide Width', () => {
+		// jsdom reports offsetWidth as 0 - stub the measured container width
+		let offsetWidthDescriptor: PropertyDescriptor | undefined;
+
+		beforeEach(() => {
+			offsetWidthDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
+			Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
+				configurable: true,
+				get() {
+					return 95.5;
+				},
+			});
+		});
+
+		afterEach(() => {
+			if (offsetWidthDescriptor) {
+				Object.defineProperty(HTMLElement.prototype, 'offsetWidth', offsetWidthDescriptor);
+			}
+		});
+
+		it('stops at the end of the track when the container does not fit a whole number of slides', async () => {
+			// each slide takes 28 + 5 = 33px, so 5 slides make a 165px track in a 95.5px container
+			const args: SlideshowProps = {
+				...defaultProps,
+				slides: mockImages.slice(0, 5),
+				slideWidth: 28,
+				gap: 5,
+				slidesToMove: 1,
+				loop: false,
+				showNavigation: true,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track') as HTMLElement;
+			const nextButton = rendered.container.querySelector('.ss__slideshow__navigation--next .ss__button')!;
+
+			expect(track.style.transform).toBe('translateX(0px)');
+
+			await user.click(nextButton);
+			expect(track.style.transform).toBe('translateX(-33px)');
+
+			await user.click(nextButton);
+			expect(track.style.transform).toBe('translateX(-66px)');
+
+			// the last step is partial - it ends flush with the track instead of a full step into empty space
+			await user.click(nextButton);
+			expect(track.style.transform).toBe('translateX(-69.5px)');
+			expect(nextButton).toHaveClass('ss__button--disabled');
+		});
 	});
 
 	describe('Pagination', () => {
