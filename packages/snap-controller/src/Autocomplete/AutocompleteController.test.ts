@@ -1942,6 +1942,130 @@ describe('Autocomplete Controller', () => {
 		searchTrendingfn.mockClear();
 		trendingfn.mockClear();
 	});
+
+	describe('clearing the input', () => {
+		const setup = async (settings: AutocompleteStoreConfig['settings']) => {
+			// own settings - earlier tests mutate the settings object shared through acConfigBase
+			const termsConfig = { ...acConfig, settings };
+			// detached as createAutocompleteController does - reset (detach(true)) because earlier tests replace window.location
+			const detachedServices = { urlManager: urlManager.detach(true) };
+			const controller = new AutocompleteController(termsConfig, {
+				client: new MockClient(globals, {}),
+				store: new AutocompleteStore(termsConfig, detachedServices),
+				urlManager: detachedServices.urlManager,
+				eventManager: new EventManager(),
+				profiler: new Profiler(),
+				logger: new Logger(),
+				tracker: new Tracker(globals),
+			});
+
+			(controller.client as MockClient).mockData.updateConfig({ autocomplete: 'default', siteId: '8uyt2m' });
+			await controller.bind();
+
+			const inputEl = document.querySelector(controller.config.selector) as HTMLInputElement;
+			const type = (value: string) => {
+				inputEl.value = value;
+				inputEl.dispatchEvent(new Event('input'));
+			};
+
+			return { controller, type };
+		};
+
+		afterEach(() => {
+			window.localStorage.removeItem('athos-history');
+		});
+
+		it('searches again when previewing a trending term for the current query', async () => {
+			const { controller, type } = await setup({ trending: { limit: 5, showResults: true } });
+			await waitFor(() => {
+				expect(controller.store.trending[0].value).toBe('dress');
+			});
+
+			type('dress');
+			await waitFor(() => {
+				expect(controller.urlManager.state.query).toBe('dress');
+				expect(controller.store.loaded).toBe(true);
+				expect(controller.store.loading).toBe(false);
+			});
+			const resultCount = controller.store.results.length;
+			expect(resultCount).toBeGreaterThan(0);
+
+			const autocompletefn = jest.spyOn(controller.client, 'autocomplete');
+
+			// the store reset empties the results and the preview of 'dress' must search to restore them
+			type('');
+			await waitFor(() => {
+				expect(controller.store.trending[0].active).toBe(true);
+				expect(controller.store.loading).toBe(false);
+				expect(controller.store.results.length).toBe(resultCount);
+			});
+			expect(controller.urlManager.state.query).toBe('dress');
+			// the URL reset before the preview does not search on its own
+			expect(autocompletefn).toHaveBeenCalledTimes(1);
+		});
+
+		it('searches again when previewing a history term for the current query', async () => {
+			window.localStorage.setItem('athos-history', JSON.stringify({ history: JSON.stringify(['dress']) }));
+
+			const { controller, type } = await setup({ history: { limit: 5, showResults: true } });
+			expect(controller.store.history[0].value).toBe('dress');
+
+			type('dress');
+			await waitFor(() => {
+				expect(controller.urlManager.state.query).toBe('dress');
+				expect(controller.store.loaded).toBe(true);
+				expect(controller.store.loading).toBe(false);
+			});
+			const resultCount = controller.store.results.length;
+			expect(resultCount).toBeGreaterThan(0);
+
+			const autocompletefn = jest.spyOn(controller.client, 'autocomplete');
+
+			type('');
+			await waitFor(() => {
+				expect(controller.store.history[0].active).toBe(true);
+				expect(controller.store.loading).toBe(false);
+				expect(controller.store.results.length).toBe(resultCount);
+			});
+			expect(controller.urlManager.state.query).toBe('dress');
+			expect(autocompletefn).toHaveBeenCalledTimes(1);
+		});
+
+		it('searches again when typing the query of the previewed term', async () => {
+			const { controller, type } = await setup({ trending: { limit: 5, showResults: true } });
+			await waitFor(() => {
+				expect(controller.store.trending[0].value).toBe('dress');
+			});
+
+			type('dress');
+			await waitFor(() => {
+				expect(controller.store.loaded).toBe(true);
+				expect(controller.store.loading).toBe(false);
+			});
+			const termValues = controller.store.terms.map((term) => term.value);
+			expect(termValues.length).toBeGreaterThan(0);
+
+			// the trending preview has no suggestion terms
+			type('');
+			await waitFor(() => {
+				expect(controller.store.trending[0].active).toBe(true);
+				expect(controller.store.loading).toBe(false);
+				expect(controller.store.results.length).toBeGreaterThan(0);
+			});
+			expect(controller.store.terms).toEqual([]);
+
+			const autocompletefn = jest.spyOn(controller.client, 'autocomplete');
+
+			// typing the previewed query must search to bring the suggestion terms back
+			type('dress');
+			await waitFor(() => {
+				expect(autocompletefn).toHaveBeenCalledTimes(1);
+				expect(controller.store.loading).toBe(false);
+				expect(controller.store.terms.map((term) => term.value)).toEqual(termValues);
+			});
+			expect(controller.urlManager.state.query).toBe('dress');
+		});
+	});
 });
 
 describe('Autocomplete Controller quickview', () => {

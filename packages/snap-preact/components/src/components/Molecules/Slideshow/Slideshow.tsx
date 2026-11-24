@@ -102,7 +102,8 @@ const defaultStyles: StyleScript<SlideshowProps> = ({ theme, slidesToShow = 1, s
 				justifyContent: 'center',
 				cursor: 'pointer',
 
-				'&:disabled': {
+				// Button renders a div unless native, so `:disabled` alone never matches
+				'&:disabled, &.ss__button--disabled': {
 					cursor: 'not-allowed',
 				},
 
@@ -680,7 +681,10 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 	} else if (slideWidth) {
 		// Fixed-width mode: translate by pixel amounts (slideWidth + gap per slide)
 		const slideStepPx = slideWidth + (gap ?? 0);
-		translateX = -(currentIndex * slideStepPx);
+		// the container rarely fits a whole number of steps, so the last step is partial -
+		// stop at the track's end rather than scrolling a full step past it into empty space
+		const maxTranslatePx = Math.max(0, totalSlides * slideStepPx - containerWidth);
+		translateX = -(containerWidth > 0 ? Math.min(currentIndex * slideStepPx, maxTranslatePx) : currentIndex * slideStepPx);
 		translateUnit = 'px';
 
 		// Apply drag offset
