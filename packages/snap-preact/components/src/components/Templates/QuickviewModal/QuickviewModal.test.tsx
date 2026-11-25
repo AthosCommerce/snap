@@ -67,6 +67,21 @@ const storeProduct = {
 	attributes: {},
 };
 
+// a priced product with a description and url, so every default row except variants has something to show
+const detailedProduct = {
+	id: 'mine',
+	mappings: { core: { name: 'Mine', price: 24, url: '/mine', description: 'Soft', imageUrl: 'http://example.com/main.jpg' } },
+	attributes: {},
+};
+
+// each layout row directly inside `root`, as the quickview (or mock) classnames of its modules
+const rowModules = (root: Element) =>
+	[...root.querySelectorAll(':scope > .ss__quickview__row')].map((row) =>
+		[...row.children].map((child) =>
+			[...child.classList].find((name) => (name.startsWith('ss__quickview__') && !name.startsWith('ss__quickview__row')) || name.endsWith('-mock'))
+		)
+	);
+
 describe('QuickviewModal', () => {
 	it('renders no modal content when the store is closed', () => {
 		const { quickviewManager } = makeQuickviewManager({ store: { isOpen: false, product: storeProduct } });
@@ -80,6 +95,23 @@ describe('QuickviewModal', () => {
 		expect(rendered.container.querySelector('.ss__quickview')).not.toBeNull();
 		expect(rendered.container.querySelector('.ss__quickview__content')).not.toBeNull();
 		expect(rendered.getByText('Mine')).toBeInTheDocument();
+	});
+
+	it('defaults to the slideshow beside the details: price under the title and the quantity picker beside add to cart', () => {
+		const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: detailedProduct } });
+		const rendered = render(<QuickviewModal quickviewManager={quickviewManager} />);
+
+		expect(rendered.container.querySelector('.ss__quickview__column--c1 .ss__quickview__slideshow')).not.toBeNull();
+		// the empty row is productDetailTable (no displayFields); variantSelections renders no row without selections
+		expect(rowModules(rendered.container.querySelector('.ss__quickview__column--c2')!)).toEqual([
+			['ss__quickview__title'],
+			['ss__quickview__price'],
+			['ss__callout-badge-mock'],
+			['ss__quickview__quantity-picker', 'ss__quickview__add-to-cart'],
+			['ss__quickview__description'],
+			[],
+			['ss__quickview__go-to-product'],
+		]);
 	});
 
 	it('renders null and warns when no quickview manager is provided', () => {

@@ -827,7 +827,7 @@ const config = validateTemplatesConfig({
 			},
 		},
 	},
-	theme: { extends: 'bocachica' },
+	theme: { extends: 'pike' },
 	search: {
 		targets: [{ selector: '#search', component: 'Search' }],
 	},

@@ -1,4 +1,4 @@
-import { base, bocachica, pike, snapnco, snappy } from './index';
+import { base, bocachica, denali, pike, snapnco } from './index';
 import type { ThemeComplete } from '../providers';
 
 // The layout banner lint rules can't load themes, so they mirror the layout-relevant parts of
@@ -14,7 +14,7 @@ const { buildBaseLayers, BANNER_LAYOUT_COMPONENTS, BANNER_LAYOUT_PROPS } = requi
 type Breakpoint = 'default' | 'mobile' | 'tablet' | 'desktop';
 type SelectorMap = Record<string, Record<string, unknown>>;
 
-const themes: Record<string, ThemeComplete> = { base, bocachica, pike, snapnco, snappy };
+const themes: Record<string, ThemeComplete> = { base, bocachica, denali, pike, snapnco };
 const breakpoints: Breakpoint[] = ['default', 'mobile', 'tablet', 'desktop'];
 
 /** The layout-relevant props of every selector targeting a layout-relevant component, with `$children` flattened. */

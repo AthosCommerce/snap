@@ -217,7 +217,7 @@ new SnapTemplates(validateTemplatesConfig({
 			},
 		},
 	},
-	theme: { extends: 'bocachica' },
+	theme: { extends: 'pike' },
 	...
 }));
 ```

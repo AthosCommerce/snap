@@ -90,10 +90,10 @@ export const QuickviewModal = observer((properties: QuickviewModalProps) => {
 		column2: {
 			layout: [
 				['productDetail.mappings.core.name'],
+				['productDetail.mappings.core.price'],
 				['calloutBadge'],
 				['variantSelections'],
-				['quantityPicker'],
-				['button.add-to-cart'],
+				['quantityPicker', 'button.add-to-cart'],
 				['productDetail.mappings.core.description'],
 				['productDetailTable'],
 				['button.more-info'],

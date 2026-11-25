@@ -46,6 +46,13 @@ The project theme contains the following properties:
 ### Theme `extends`
 The `extends` property is the base theme name to start from and will already contain variables, breakpoint overrides, and component props by default (unless choosing a blank theme)
 
+The library themes are:
+
+| Theme | Look |
+|-------|------|
+| `base` | Minimal component styling, a starting point for fully custom designs |
+| `pike` | Square corners, bordered controls and neutral gray surfaces |
+| `denali` | Rounded: pill buttons and chips, circular controls, and rounded facet cards and images |
 
 ### Theme `variables`
 Each theme includes a common set of shared variables (for example, colors and breakpoints) that remain compatible when switching between themes.
