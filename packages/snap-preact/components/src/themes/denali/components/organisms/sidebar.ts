@@ -4,10 +4,11 @@ import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
 // CSS in JS style script for the Sidebar component
-const sidebarStyleScript = ({ theme, treePath }: SidebarProps) => {
+const sidebarStyleScript = ({ theme, treePath, internalClassName }: SidebarProps) => {
 	const variables = theme?.variables;
-	// a sidebar rendered in a slideout (`... slideout sidebar` in the tree path) fills the panel and pins its footer
-	const inSlideout = /\bslideout\b/.test(treePath || '');
+	// a sidebar rendered in a slideout fills the panel and pins its footer - the search templates' slideout is in its
+	// tree path (`... slideout sidebar`), and the horizontal facets' overflow sidebar only ever renders in its slideout
+	const inSlideout = /\bslideout\b/.test(treePath || '') || internalClassName == 'ss__facets-horizontal__sidebar';
 	const applyColors = custom.utils.activeColors(variables?.colors?.primary || custom.colors.black);
 
 	return css({

@@ -90,7 +90,8 @@ const recommendationBundleListStyleScript = ({ theme }: RecommendationBundleList
 			display: 'grid',
 			gridTemplateColumns: '1fr',
 			gap: '20px 30px',
-			[`@media (min-width: ${variables?.breakpoints?.mobile}px)`]: {
+			// the mobile layer includes its breakpoint, so the desktop columns start a pixel above it
+			[`@media (min-width: ${Number(variables?.breakpoints?.mobile) + 1}px)`]: {
 				gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
 			},
 			[`${prefix}__wrapper__selector__result-wrapper`]: {

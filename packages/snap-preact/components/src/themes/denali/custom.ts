@@ -1,4 +1,9 @@
-import { colord } from 'colord';
+import { colord, extend } from 'colord';
+import namesPlugin from 'colord/plugins/names';
+
+// named colors (`red`, `navy`) resolve like hex ones - the swatch components extend colord with this too, and an
+// extension is global, so this keeps it from depending on which modules load first
+extend([namesPlugin]);
 
 /*
 	What the theme colors are for - a color means one thing everywhere. all three default to `currentColor`:
@@ -38,12 +43,13 @@ export const custom = {
 		}),
 	},
 	utils: {
-		// fill and contrast text for a filled control in a passed color (a component's `backgroundColor` prop) -
-		// unresolvable colors (`currentColor`) fall back to black
+		// fill and contrast text for a filled control in a passed color (a component's `backgroundColor` prop).
+		// a CSS variable cannot be resolved at style time, so it is kept with white text - other unresolvable values
+		// (`currentColor`, which would resolve to that text itself) fall back to black
 		activeColors: (color: string): [string, string] => {
 			const parsed = colord(color);
-			const fill = parsed.isValid() ? parsed : colord('#000000');
-			return [fill.toHex().toLowerCase(), fill.isDark() ? '#ffffff' : '#000000'];
+			if (parsed.isValid()) return [parsed.toHex().toLowerCase(), parsed.isDark() ? '#ffffff' : '#000000'];
+			return [color.trim().startsWith('var(') ? color : '#000000', '#ffffff'];
 		},
 		// a hover/selected row tint over a background - a neutral gray when the color cannot be resolved
 		// at style time (`currentColor`, CSS variables), since it works on light and dark backgrounds

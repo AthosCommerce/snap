@@ -16,12 +16,15 @@ const autocompleteFixedStyleScript = ({
 	inputBounds,
 }: AutocompleteFixedProps & { inputBounds?: AutocompleteFixedStyleProps['inputBounds'] }) => {
 	// a px width grows left from the input's right edge, shifted right as far as it needs to stay 10px inside the
-	// page - an input near the page's left edge would otherwise push the panel off it
+	// viewport - an input near the page's left edge would otherwise push the panel off it. `inputBounds` are document
+	// positions, so the viewport's edges are too
 	const panelWidth = width?.endsWith('px') ? parseFloat(width) : undefined;
+	const viewportLeft = window.scrollX + 10;
+	const viewportRight = window.scrollX + document.documentElement.clientWidth - 10;
 	const panelLeft =
 		panelWidth === undefined || !inputBounds
 			? undefined
-			: Math.max(10, Math.min(inputBounds.left + inputBounds.width, document.documentElement.clientWidth - 10) - panelWidth) - inputBounds.left;
+			: Math.max(viewportLeft, Math.min(inputBounds.left + inputBounds.width, viewportRight) - panelWidth) - inputBounds.left;
 
 	return css({
 		...autocompleteSharedStyles,

@@ -7,6 +7,9 @@ const searchCollapsibleStyleScript = ({ sidebarWidth, mobileDisplayAt }: SearchC
 	// the toggle's column ends where the results start, so the pagination info lines up with the first result:
 	// the sidebar's 40px margin and the 20px content gap, less the toolbar row's own 10px gap
 	const _sidebarWidth = sidebarWidth ? `calc(${sidebarWidth} + 50px)` : undefined;
+	// the same query the component uses - `true` is always the slideout
+	const mobileQuery =
+		mobileDisplayAt === true ? '(min-width: 0px)' : typeof mobileDisplayAt == 'string' ? `(max-width: ${mobileDisplayAt})` : undefined;
 
 	return css({
 		'.ss__toolbar .ss__layout__sidebar-toggle-button-wrapper': {
@@ -15,8 +18,8 @@ const searchCollapsibleStyleScript = ({ sidebarWidth, mobileDisplayAt }: SearchC
 		},
 		// the sidebar is a slideout below `mobileDisplayAt` - there is no sidebar column to line up with, and the
 		// reserved width would push the sort by onto its own row
-		...(typeof mobileDisplayAt == 'string' && {
-			[`@media (max-width: ${mobileDisplayAt})`]: {
+		...(mobileQuery && {
+			[`@media ${mobileQuery}`]: {
 				'.ss__toolbar .ss__layout__sidebar-toggle-button-wrapper': {
 					width: 'auto',
 				},

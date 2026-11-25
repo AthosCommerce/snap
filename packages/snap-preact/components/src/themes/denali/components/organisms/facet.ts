@@ -8,7 +8,8 @@ const facetStyleScript = ({ color, theme }: FacetProps) => {
 	const variables = theme?.variables;
 
 	return css({
-		[`@media (min-width: ${variables?.breakpoints.tablet}px)`]: {
+		// the tablet layer includes its breakpoint, so this starts a pixel above it
+		[`@media (min-width: ${Number(variables?.breakpoints.tablet) + 1}px)`]: {
 			'&.ss__facet--showing-all': {
 				'& .ss__facet__options': {
 					maxHeight: '600px',

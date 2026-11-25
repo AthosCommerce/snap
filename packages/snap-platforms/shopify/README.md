@@ -306,7 +306,7 @@ To show the currency code alongside the amount — the equivalent of Shopify's `
 
 ```tsx
 theme: {
-	extends: 'bocachica',
+	extends: 'pike',
 	overrides: {
 		default: {
 			price: {

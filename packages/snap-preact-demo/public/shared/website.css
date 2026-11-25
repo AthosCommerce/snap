@@ -542,12 +542,12 @@ fieldset {
 }
 
 /* the demo's own inputs - Snap component inputs (ss__* classes other than ss__demo*) keep their theme styling */
-.ss__demo-site .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"])), .ss__demo-site .ss__demo .ss__demo__theme select, .ss__demo-site .ss__demo .ss__demo__theme .ss__demo__button {
+.ss__demo-site .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"])), .ss__demo-site .ss__demo .ss__demo__theme select:not([class^="ss__"]:not([class^="ss__demo"])), .ss__demo-site .ss__demo .ss__demo__theme .ss__demo__button {
 	-moz-border-radius: 0;
 	border-radius: 0;
 }
 
-.ss__demo-site .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"])), .ss__demo-site .ss__demo .ss__demo__theme select {
+.ss__demo-site .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"])), .ss__demo-site .ss__demo .ss__demo__theme select:not([class^="ss__"]:not([class^="ss__demo"])) {
 	color: #515151;
 	border: 2px solid #00aeef;
 }

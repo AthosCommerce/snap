@@ -127,7 +127,7 @@ export default {
 				},
 				defaultValue: {
 					summary:
-						"{ layout: [['productDetail.mappings.core.name'], ['calloutBadge'], ['variantSelections'], ['quantityPicker'], ['button.add-to-cart'], ['productDetail.mappings.core.description'], ['productDetailTable'], ['button.more-info']], width: 'auto' }",
+						"{ layout: [['productDetail.mappings.core.name'], ['productDetail.mappings.core.price'], ['calloutBadge'], ['variantSelections'], ['quantityPicker', 'button.add-to-cart'], ['productDetail.mappings.core.description'], ['productDetailTable'], ['button.more-info']], width: 'auto' }",
 				},
 			},
 			control: 'none',
